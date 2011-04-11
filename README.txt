@@ -105,4 +105,4 @@ h4. Buffering and Flushing:
 | Sys  | 0.357 | 0.362 | 0.370 | 
 
 
-The flushing had no real affect because there was probably only one input split. The flushing is only performed between splits.
+The flushing had no real effect because there was probably only one input split. The flushing is only performed between splits.
