@@ -3,6 +3,9 @@ package wordcount
 import org.apache.hadoop.io.{IntWritable, LongWritable, Text}
 import org.apache.hadoop.mapred.{MapReduceBase, Mapper, Reducer, OutputCollector, Reporter}
 
+/**
+ * Simple word count mapper. It emits the key-value pair (word,1) for each word.
+ */
 object WordCountNoBuffering {
 
 	val one  = new IntWritable(1)

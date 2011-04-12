@@ -11,10 +11,12 @@ object WordCount {
 
 		val mapper = args(0) match {
 			case "1" | "no" | "no-buffer" => println("Using WordCountNoBuffering.Map"); classOf[WordCountNoBuffering.Map]
-			case "2" | "buffer"           => println("Using WordCountBuffering.Map"); classOf[WordCountBuffering.Map]
-			case "3" | "buffer-flush"     => println("Using WordCountBufferingFlushing.Map"); classOf[WordCountBufferingFlushing.Map]
+			case "2" | "not" | "no-buffer-tokens" => println("Using WordCountNoBufferingTokenization.Map"); classOf[WordCountNoBufferingTokenization.Map]
+			case "3" | "buffer"           => println("Using WordCountBuffering.Map"); classOf[WordCountBuffering.Map]
+			case "4" | "buffer-flush"     => println("Using WordCountBufferingFlushing.Map"); classOf[WordCountBufferingFlushing.Map]
 			case s => 
-				println("Unrecognized argument for the kind of mapper. Must be 'no', 'buffer', or 'buffer-flush' or you can use 1, 2, or 3.")
+				println("Unrecognized argument for the kind of mapper. Must be 'no-buffer' (or just 'no'), 'no-buffer-tokens' (or just 'not'),")
+			  println("  'buffer', or 'buffer-flush' or you can use 1, 2, 3, or 4, respectively.")
   			exit (1)
 		}
 		println(mapper.getClass.getName)

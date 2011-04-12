@@ -24,14 +24,17 @@ case $1 in
 		""|1|no|no-buffer)
 				map_kind=no-buffer
 				;;
-		2|buffer)
+		2|not|no-buffer-tokens)
+				map_kind=no-buffer-tokens
+				;;
+		3|buffer)
 				map_kind=buffer
 				;;
-		3|buffer-flush)
+		4|buffer-flush)
 				map_kind=buffer-flush
 				;;
 		*)
-				echo "Unrecognized map specification: '1' or 'no', '2' or 'buffer', '3' or 'buffer-flush'"
+				echo "Unrecognized map specification: '1|no|no-buffer', '2|not|no-buffer-tokens', '3|buffer', or '4|buffer-flush'"
 				exit 1
 				;;
 esac

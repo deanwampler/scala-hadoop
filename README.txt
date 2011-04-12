@@ -79,30 +79,52 @@ The different mappers apply different optimizations. The "no-buffer" case simply
 
 The "buffer" case saves each word as a key in a map and increments the count of occurrences as the corresponding map value. Then, when the mapper's *close* method is called, the words and counts are sent to the output collector. This mapper minimizes the overhead for the IO to the reducers and the sort and shuffle process, but it increases the memory requirements to store the word-count map.
 
-The "buffer-flush" case addresses the potential problem that the word-count map could consume too much memory. It flushes the map to the output collector when the map size crosses a threshold (currently hard coded in the mapper class). So, it consumes less memory, but slightly increases the overhead, as more word-count pairs will be emitted.
+The "buffer-flush" case addresses the potential problem that the word-count map could consume too much memory. The solution is to flush the map of data to the output collector when the map size crosses threshold (currently hard coded in the mapper class). So, it consumes less memory, but slightly increases the overhead, as more word-count pairs will be emitted.
 
 Here are some test results on my MacBookPro with an i7 process, SSD, and 4GB of RAM.
 
-h4. No Buffering:
+h4. No Buffering and Regular Expression String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 |
-| Real | 6.851 | 6.841 | 6.841 |
-| User | 9.554 | 9.512 | 9.563 |
-| Sys  | 0.442 | 0.437 | 0.427 |
+| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. |
+| Real | 6.851 | 6.841 | 6.841 | 6.844 |
+| User | 9.554 | 9.512 | 9.563 | 9.543 |
+| Sys  | 0.442 | 0.437 | 0.427 | 0.435 |
 
-h4. Buffering:
+h4. No Buffering and StringTokenizer String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 |
-| Real | 5.835 | 5.835 | 5.838 | 
-| User | 7.884 | 7.872 | 7.885 |
-| Sys  | 0.368 | 0.362 | 0.364 |
+| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. |
+| Real | 5.885 | 5.857 | 5.885 | 5.875 |
+| User | 7.525 | 7.557 | 7.607 | 7.563 |
+| Sys  | 0.388 | 0.410 | 0.421 | 0.406 |
 
-h4. Buffering and Flushing:
+h4. Buffering and Regular Expression String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 |
-| Real | 5.834 | 5.834 | 5.830 | 
-| User | 7.870 | 7.869 | 7.891 | 
-| Sys  | 0.357 | 0.362 | 0.370 | 
+| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. |
+| Real | 5.835 | 5.835 | 5.838 | 5.836 |
+| User | 7.884 | 7.872 | 7.885 | 7.880 |
+| Sys  | 0.368 | 0.362 | 0.364 | 0.364 |
 
+h4. Buffering and StringTokenizer String Splitting:
 
-The flushing had no real effect because there was probably only one input split. The flushing is only performed between splits.
+| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. |
+| Real | 3.833 | 3.832 | 3.827 | 3.830 |
+| User | 5.385 | 5.324 | 5.384 | 5.334 |
+| Sys  | 0.317 | 0.311 | 0.310 | 0.312 |
+
+h4. Buffering with Flushing and Regular Expression String Splitting:
+
+| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. |
+| Real | 5.836 | 5.835 | 5.831 | 5.834 |
+| User | 8.672 | 8.674 | 8.706 | 8.684 |
+| Sys  | 0.420 | 0.414 | 0.418 | 0.417 |
+
+h4. Buffering with Flushing and StringTokenizer String Splitting:
+
+| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. |
+| Real | 4.830 | 4.838 | 4.858 | 4.842 |
+| User | 6.367 | 6.469 | 6.391 | 6.409 |
+| Sys  | 0.368 | 0.376 | 0.373 | 0.372 |
+
+The flushing was set to flush every 1000 words, so the benefit of reduced memory usage was probably minimal and the extra IO hurt performance.
+
+There is a significant performance improving using the StringTokenizer vs. the regular expression splitting. This may be due in part to the fact that the words are further processed to remove non-alphanumeric characters in the latter case.

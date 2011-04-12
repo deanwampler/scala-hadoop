@@ -2,7 +2,13 @@ package wordcount
 
 import org.apache.hadoop.io.{IntWritable, LongWritable, Text}
 import org.apache.hadoop.mapred.{MapReduceBase, Mapper, Reducer, OutputCollector, Reporter}
+import java.util.StringTokenizer
 
+/**
+ * Buffer the counts and then emit them at the end, reducing the pairs emitted, and hence the sort and shuffle overhead.
+ * The method <tt>mapWithRegex</tt> was used as <tt>map</tt> to for a one-time measurement of the performance with that
+ * parsing option.
+ */
 object WordCountBuffering {
 
 	class Map extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
@@ -12,6 +18,17 @@ object WordCountBuffering {
 		var outputCollector: OutputCollector[Text, IntWritable] = _;
 
 		def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
+			outputCollector = output
+			val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-'\"")
+			while (tokenizer.hasMoreTokens) {
+				val wordString = tokenizer.nextToken
+				if (wordString.length > 0) {
+					increment(wordString)
+				}
+			}
+		}
+		
+		def mapWithRegex(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
 			outputCollector = output
 			for {
 				// In the Shakespeare text, there are also expressions like 
