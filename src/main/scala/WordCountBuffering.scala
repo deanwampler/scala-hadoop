@@ -28,6 +28,10 @@ object WordCountBuffering {
 			}
 		}
 		
+		/**
+		 * This method was used temporarily as <tt>map</tt> for a one-time measurement of the performance with the 
+		 * Regex splitting option.
+		 */
 		def mapWithRegex(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
 			outputCollector = output
 			for {

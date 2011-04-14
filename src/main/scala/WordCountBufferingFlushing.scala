@@ -7,7 +7,7 @@ import java.util.StringTokenizer
 /**
  * Buffer the counts and then emit them at the end, reducing the pairs emitted, and hence the sort and shuffle overhead.
  * Also flushes if the count map grows beyond a certain size. However, as implemented, this has no effect
- * if only one input split is sent to this object!
+ * on small data sets.
  * The method <tt>mapWithRegex</tt> was used as <tt>map</tt> to for a one-time measurement of the performance with that
  * parsing option.
  */
@@ -21,7 +21,7 @@ object WordCountBufferingFlushing {
 		// Save the output collector so we can use it in close. Is this safe??
 		var outputCollector: OutputCollector[Text, IntWritable] = _;
 
-		def map2(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
+		def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
 			outputCollector = output
 			val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-'\"")
 			while (tokenizer.hasMoreTokens) {
@@ -33,8 +33,11 @@ object WordCountBufferingFlushing {
 			}
 		}
 		
-//		def mapWithRegex(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
-		def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
+		/**
+		 * This method was used temporarily as <tt>map</tt> for a one-time measurement of the performance with the 
+		 * Regex splitting option.
+		 */
+		def mapWithRegex(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
 			outputCollector = output
 			for {
 				// In the Shakespeare text, there are also expressions like 

@@ -2,6 +2,8 @@ h1. Programming Hadoop with Scala
 
 This is a project to experiment with writing Hadoop jobs in Scala. Currently, it just uses the Java APIs, as is. Longer term, it might evolve into a more idiomatic Scala binding.
 
+Some parts adapted from "http://archive.cloudera.com/chd/3/hadoop-0.20.2+737/mapred_tutorial.html#Source+Code":http://archive.cloudera.com/chd/3/hadoop-0.20.2+737/mapred_tutorial.html#Source+Code.
+
 h2. Usage
 
 h3. Install Hadoop
@@ -28,7 +30,7 @@ After starting sbt, run these commands at the '>' prompt. The '#...' are comment
     compile  # build everything
     quit     # exit sbt
 
-You'll get some warnings about deprecated types and methods. The examples use the pre 0.20 Hadoop API, since that's what most of the available Hadoop documentation uses.
+The compile step will produce several warnings about deprecated types and methods. The examples use the pre 0.20 Hadoop API, since that's what most of the available Hadoop documentation uses. The compile step should contain a "[success] Successful" message near the end of its output.
 
 See also the *TODOs* below.
 
@@ -65,6 +67,11 @@ A partial list of the contents.
 | lib | Support libraries, like the sbt jar |
 | lib_managed | Dependency jars |
 | src | Tree for all sources |
+| src/main/scala/WordCount.scala | The "main" routine. |
+| src/main/scala/WordCountNoBuffering.scala | The mapper with the most naive algorithm; it emits (word,1) for every occurrence of "word". |
+| src/main/scala/WordCountBuffering.scala | The mapper that counts the words and then emits the (word,N) tuples at the end of its run. |
+| src/main/scala/WordCountBufferingFlushing.scala | The buffering mapper that flushes and resets the accumulated counts once they cross a certain threshold. This change increases some packets set to the reducers, but reduces the unbounded memory required for the mapper! |
+| src/main/scala/WordCountReduce.scala | The reducer used for all cases. |
 | target | Where build products are written |
 
 h2. TODOs
@@ -127,4 +134,4 @@ h4. Buffering with Flushing and StringTokenizer String Splitting:
 
 The flushing was set to flush every 1000 words, so the benefit of reduced memory usage was probably minimal and the extra IO hurt performance.
 
-There is a significant performance improving using the StringTokenizer vs. the regular expression splitting. This may be due in part to the fact that the words are further processed to remove non-alphanumeric characters in the latter case.
+There is a significant performance improving when using the StringTokenizer vs. the regular expression for splitting the text into words. This may be due in part to the fact that the regex approach parses the strings into words and then further removes non-alphanumeric characters. However, this approach does a better job isolating true words, e.g., "hello" and "hello!" become just "hello". 
