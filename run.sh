@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-test "$HADOOP_HOME" != "" || ( echo "Must define $HADOOP_HOME"; exit 1 )
+test "$HADOOP_HOME" != "" || ( echo "Must define HADOOP_HOME"; exit 1 )
 
 function test_and_delete_output {
 		output=$1
