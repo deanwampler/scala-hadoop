@@ -5,6 +5,7 @@ class WordCountProject(info: ProjectInfo) extends DefaultProject(info) {
 
   lazy val EmbeddedRepo = MavenRepository("Embedded Repo", (info.projectPath / "embedded-repo").asURL.toString)
   lazy val LocalMavenRepo = MavenRepository("Local Maven Repo", (Path.userHome / ".m2" / "repository").asURL.toString)
+  lazy val MavenRepo1 = MavenRepository("Maven Repo1", "http://repo1.maven.org/maven2/")
 	lazy val ClouderaMavenRepo = MavenRepository("Cloudera Maven Repo", "https://repository.cloudera.com/content/repositories/releases")
 
 	lazy val hadoopModuleConfig = ModuleConfiguration("com/cloudera/hadoop/", ClouderaMavenRepo)
