@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 
-test "$HADOOP_HOME" != "" || ( echo "Must define $HADOOP_HOME"; exit 1 )
+which hadoop
+if [ $? != 0 ]
+then
+	if [ "$HADOOP_HOME" = "" ]
+  then
+    echo "$0: Must define HADOOP_HOME or have the hadoop command on your path"
+    exit 1
+  fi
+  export PATH=$HADOOP_HOME/bin:$PATH
+fi
 
 # Set up the data directories and input file in HDFS.
 hadoop dfs -mkdir /word-count

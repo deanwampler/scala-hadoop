@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 
-test "$HADOOP_HOME" != "" || ( echo "Must define HADOOP_HOME"; exit 1 )
+which hadoop
+if [ $? != 0 ]
+then
+	if [ "$HADOOP_HOME" = "" ]
+  then
+    echo "$0: Must define HADOOP_HOME or have the hadoop command on your path"
+    exit 1
+  fi
+  export PATH=$HADOOP_HOME/bin:$PATH
+fi
 
 function test_and_delete_output {
 		output=$1
@@ -46,5 +55,5 @@ test_and_delete_output $output
 
 export HADOOP_CLASSPATH=target/scala_2.8.1/classes:project/boot/scala-2.8.1/lib/scala-library.jar
 
-hadoop wordcount.WordCount "$@" /word-count/input $output
+time hadoop wordcount.WordCount "$@" /word-count/input $output
 

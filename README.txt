@@ -2,19 +2,24 @@ h1. Programming Hadoop with Scala
 
 This is a project to experiment with writing Hadoop jobs in Scala. Currently, it just uses the Java APIs, as is. Longer term, it might evolve into a more idiomatic Scala binding.
 
-Some parts adapted from "http://archive.cloudera.com/chd/3/hadoop-0.20.2+737/mapred_tutorial.html#Source+Code":http://archive.cloudera.com/chd/3/hadoop-0.20.2+737/mapred_tutorial.html#Source+Code.
+Some source and sample text data adapted from "http://archive.cloudera.com/chd/3/hadoop-0.20.2+737/mapred_tutorial.html#Source+Code":http://archive.cloudera.com/chd/3/hadoop-0.20.2+737/mapred_tutorial.html#Source+Code, also available from the Cloudera free training materials on GitHub, "https://github.com/cloudera/cloudera-training":https://github.com/cloudera/cloudera-training.
 
 h2. Usage
 
 h3. Install Hadoop
 
-You'll need to install the Hadoop distribution somewhere and define the environment *HADOOP_HOME* to point to the installation directory. A good place to get Hadoop is at the Cloudera download site, "http://www.cloudera.com/downloads/":http://www.cloudera.com/downloads/.
+You'll need to install the Hadoop distribution. A good place to get Hadoop is at the Cloudera download site, "http://www.cloudera.com/downloads/":http://www.cloudera.com/downloads/. Then, do one of the following, assuming *hadoop_home* is where you installed Hadoop:
+
+* Put *hadoop_home/bin* on your *PATH* or...
+* Define the environment *HADOOP_HOME* to point to *hadoop_home*.
 
 *Note:* at the time of this writing, only the hadoop-core-X.Y.Z-A.jar is required.
 
-h3. Run the *setup.sh* script to put the sample data into HDFS.
+h3. Run the *setup.sh* script to put the sample data into HDFS. 
 
-Using a bash-compatible shell, run the *setup.sh* script to import the data files into HDFS.
+Using a bash-compatible shell, run the *setup.sh* script to import the data files into HDFS. If you get an error, check that your *HADOOP_HOME* or *PATH* is set correctly.
+
+If you don't have a bash shell, you can run the same *hadoop dfs* commands from your windows shell.
 
 h3. Build with SBT
 
@@ -135,3 +140,6 @@ h4. Buffering with Flushing and StringTokenizer String Splitting:
 The flushing was set to flush every 1000 words, so the benefit of reduced memory usage was probably minimal and the extra IO hurt performance.
 
 There is a significant performance improving when using the StringTokenizer vs. the regular expression for splitting the text into words. This may be due in part to the fact that the regex approach parses the strings into words and then further removes non-alphanumeric characters. However, this approach does a better job isolating true words, e.g., "hello" and "hello!" become just "hello". 
+
+h2. Notes
+

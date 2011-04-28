@@ -1,3 +1,4 @@
 lib_managed
 project/boot/
 target
+.redcar
