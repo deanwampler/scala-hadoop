@@ -11,6 +11,15 @@ then
   export PATH=$HADOOP_HOME/bin:$PATH
 fi
 
+function help {
+		echo "usage: $0 which_mapper input_directory output_directory"
+		echo "where which_mapper is one of the following options:"
+		echo "  1 | no | no-buffer   Simplest algorithm, but least efficient."
+		echo "  2 | not | no-buffer-use-tokenizer  Like 'no', but uses a less efficient StringTokenizer, which yields more accurate results."
+		echo "  3 | buffer           Buffer the counts and emit just one key-count pair for each work key."
+		echo "  4 | buffer-flush     Like 'buffer', but flushes data more often to limit memory usage."
+}
+
 function test_and_delete_output {
 		output=$1
 		hadoop dfs -test -d $output 2> /dev/null
@@ -30,10 +39,14 @@ function test_and_delete_output {
 }
 
 case $1 in
-		""|1|no|no-buffer)
+		-h|--help)
+				help
+				exit 0
+				;;
+		1|no|no-buffer)
 				map_kind=no-buffer
 				;;
-		2|not|no-buffer-tokens)
+		2|not|no-buffer-use-tokenizer)
 				map_kind=no-buffer-tokens
 				;;
 		3|buffer)
@@ -43,7 +56,7 @@ case $1 in
 				map_kind=buffer-flush
 				;;
 		*)
-				echo "Unrecognized map specification: '1|no|no-buffer', '2|not|no-buffer-tokens', '3|buffer', or '4|buffer-flush'"
+				help
 				exit 1
 				;;
 esac

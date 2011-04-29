@@ -5,11 +5,11 @@ import org.apache.hadoop.mapred.{MapReduceBase, Mapper, OutputCollector, Reporte
 import java.util.StringTokenizer
 
 /**
- * Buffer the counts and then emit them at the end, reducing the pairs emitted, and hence the sort and shuffle overhead.
- * Also flushes if the count map grows beyond a certain size. However, as implemented, this has no effect
- * on small data sets.
- * The method <tt>mapWithRegex</tt> was used as <tt>map</tt> to for a one-time measurement of the performance with that
- * parsing option.
+ * Buffer the counts and then emit them periodically to reduce the size of the map, which
+ * could exceed available memory for very large input data sets. Hence the sort and shuffle
+ * overhead is a little larger than for WordCountBufferingFlushing, because there will be
+ * more intermediate word-count pairs emitted. However, as implemented, the optimization
+ * has no effect on small data sets, because the intermediate flushing is never invoked.
  */
 object WordCountBufferingFlushing {
 
@@ -30,24 +30,6 @@ object WordCountBufferingFlushing {
 					increment(wordString)
 					count = flushIfLargerThan(count, MAX_SIZE)
 				}
-			}
-		}
-		
-		/**
-		 * This method was used temporarily as <tt>map</tt> for a one-time measurement of the performance with the 
-		 * Regex splitting option.
-		 */
-		def mapWithRegex(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
-			outputCollector = output
-			for {
-				// In the Shakespeare text, there are also expressions like 
-				//   As both of you--God pardon it!--have done.
-				// So we also use "--" as a separator.
-				wordString1 <- valueDocContents.toString.split("(\\s+|--)")  
-        wordString  =  wordString1.replaceAll("[.,:;?!'\"]+", "")  // also strip out punctuation, etc.
-			} {
-				increment(wordString);
-				count = flushIfLargerThan(count, MAX_SIZE)
 			}
 		}
 		

@@ -5,8 +5,8 @@ import org.apache.hadoop.mapred.{MapReduceBase, Mapper, Reducer, OutputCollector
 import java.util.StringTokenizer
 
 /**
- * Simple word count mapper based on WordCountNoBuffering, but it uses StringTokenizer to split the string
- * into words. Note that the results will probably be different, because the splitting algorithm is different.
+ * Simple word count mapper based on WordCountNoBuffering, but it uses StringTokenizer to
+ * split the string into words. Note that the results will probably be different, because the splitting algorithm is different.
  */
 object WordCountNoBufferingTokenization {
 

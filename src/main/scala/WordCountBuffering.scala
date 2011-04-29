@@ -5,9 +5,8 @@ import org.apache.hadoop.mapred.{MapReduceBase, Mapper, Reducer, OutputCollector
 import java.util.StringTokenizer
 
 /**
- * Buffer the counts and then emit them at the end, reducing the pairs emitted, and hence the sort and shuffle overhead.
- * The method <tt>mapWithRegex</tt> was used as <tt>map</tt> to for a one-time measurement of the performance with that
- * parsing option.
+ * Buffer the counts and then emit them at the end, reducing the pairs emitted, and hence
+ * the sort and shuffle overhead. 
  */
 object WordCountBuffering {
 
@@ -26,21 +25,6 @@ object WordCountBuffering {
 					increment(wordString)
 				}
 			}
-		}
-		
-		/**
-		 * This method was used temporarily as <tt>map</tt> for a one-time measurement of the performance with the 
-		 * Regex splitting option.
-		 */
-		def mapWithRegex(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
-			outputCollector = output
-			for {
-				// In the Shakespeare text, there are also expressions like 
-				//   As both of you--God pardon it!--have done.
-				// So we also use "--" as a separator.
-				wordString1 <- valueDocContents.toString.split("(\\s+|--)")  
-        wordString  =  wordString1.replaceAll("[.,:;?!'\"]+", "")  // also strip out punctuation, etc.
-			} increment(wordString);
 		}
 		
 		override def close() = {

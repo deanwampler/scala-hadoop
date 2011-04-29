@@ -7,11 +7,18 @@ import org.apache.hadoop.mapred.{FileInputFormat, FileOutputFormat, JobConf, Job
 object WordCount {
 
 	def main(args: Array[String]): Unit = {
-		assert (args.length == 3, "Usage: WordCount (1|no-buffer|2|buffer|3|buffer-flush) input_file output_file")
+		assert (args.length == 3, """
+Usage: WordCount *which_mapper* input_directory output_directory
+where *which_mapper* is one of the following options:
+  1 | no | no-buffer   Simplest algorithm, but least efficient.
+  2 | not | no-buffer-use-tokenizer  Like 'no', but uses a less efficient StringTokenizer, which yields more accurate results.
+  3 | buffer           Buffer the counts and emit just one key-count pair for each work key.
+  4 | buffer-flush     Like 'buffer', but flushes data more often to limit memory usage.
+""")
 
 		val mapper = args(0) match {
 			case "1" | "no" | "no-buffer" => println("Using WordCountNoBuffering.Map"); classOf[WordCountNoBuffering.Map]
-			case "2" | "not" | "no-buffer-tokens" => println("Using WordCountNoBufferingTokenization.Map"); classOf[WordCountNoBufferingTokenization.Map]
+			case "2" | "not" | "no-buffer-use-tokenizer" => println("Using WordCountNoBufferingTokenization.Map"); classOf[WordCountNoBufferingTokenization.Map]
 			case "3" | "buffer"           => println("Using WordCountBuffering.Map"); classOf[WordCountBuffering.Map]
 			case "4" | "buffer-flush"     => println("Using WordCountBufferingFlushing.Map"); classOf[WordCountBufferingFlushing.Map]
 			case s => 

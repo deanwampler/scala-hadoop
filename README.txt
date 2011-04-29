@@ -48,9 +48,10 @@ It will prompt you if the output directory already exists in HDFS; Hadoop won't 
 You can also specify an argument to indicate the kind of mapper to use:
 
 | Flag | Description |
-| *1*, *no*, or *no-buffer* | Do no buffering in the WordCount mapper; just emit a count of 1 for each word encountered, every time it is encountered. |
-| *2*, *buffer* | In each mapper instance, buffer the total counts for each word and then emit the final counts when the mapper is "closed". |
-| *3*, *buffer-flush* | Like "buffer", but also flushes and resets the count records if the number of words crosses a size threshold. |
+| *1*, *no*, or *no-buffer* | Do no buffering in the WordCount mapper; just emit a count of 1 for each word encountered, every time it is encountered. The input text is split using String.split("\s+"), then undesired characters (like punctuation) are removed. (This last step adds significant overhead!) |
+| *2*, *not*, or *no-buffer-use-tokenizer* | Do no buffering in the WordCount mapper, like the previous "no-buffer" case, but split the string using Java's StringTokenizer class. This version is roughly as efficient, but does a better job eliminating "garbage" words and characters. |
+| *3*, *buffer* | In each mapper instance, buffer the total counts for each word and then emit the final counts when the mapper is "closed". (Uses the StringTokenizer approach, like "not".) |
+| *4*, *buffer-flush* | Like "buffer", but also flushes and resets the count records if the number of words crosses a size threshold. |
 
 See *Test Runs* below for a discussion of what these options mean.
 
@@ -83,17 +84,18 @@ h2. TODOs
 
 # Add a run action to the sbt project that properly invokes hadoop.
 # Add a setup action to the sbt project that puts the data files into HDFS.
+# Add the use of a Combiner.
 # TESTS!
 
 h3. Test Runs
 
-The different mappers apply different optimizations. The "no-buffer" case simply writes a word-1 pair every time a word is encountered. This is the simplest algorithm, for the mapper, but it generates the most IO to the reducers and the largest sort and shuffle overhead.
+The different mappers apply different optimizations. The "no-buffer" cases simply writes a word-1 pair every time a word is encountered. This is the simplest algorithm, for the mapper, but it generates the most IO to the reducers and the largest sort and shuffle overhead.
 
 The "buffer" case saves each word as a key in a map and increments the count of occurrences as the corresponding map value. Then, when the mapper's *close* method is called, the words and counts are sent to the output collector. This mapper minimizes the overhead for the IO to the reducers and the sort and shuffle process, but it increases the memory requirements to store the word-count map.
 
 The "buffer-flush" case addresses the potential problem that the word-count map could consume too much memory. The solution is to flush the map of data to the output collector when the map size crosses threshold (currently hard coded in the mapper class). So, it consumes less memory, but slightly increases the overhead, as more word-count pairs will be emitted.
 
-Here are some test results on my MacBookPro with an i7 process, SSD, and 4GB of RAM.
+Here are some test results on my MacBookPro with an i7 process, SSD, and 4GB of RAM. Note that I have made some refinements since these tests were run, so they may be slightly out of date, but still correct in terms of relative magnitudes.
 
 h4. No Buffering and Regular Expression String Splitting:
 

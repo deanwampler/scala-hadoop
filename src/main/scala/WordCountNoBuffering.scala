@@ -6,6 +6,8 @@ import java.util.StringTokenizer
 
 /**
  * Simple word count mapper. It emits the key-value pair (word,1) for each word.
+ * The method <tt>mapWithRegex</tt> was used as <tt>map</tt> to for a one-time
+ * measurement of the performance with that parsing option.
  */
 object WordCountNoBuffering {
 
@@ -15,9 +17,8 @@ object WordCountNoBuffering {
 	class Map extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
 		
 		def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
-			val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-'\"")
-			while (tokenizer.hasMoreTokens) {
-				val wordString = tokenizer.nextToken
+			val tokens = valueDocContents.toString.split("\\s+")
+			for (wordString <- tokens) {
 				if (wordString.length > 0) {
 					word.set(wordString)
 					output.collect(word, one)
@@ -26,8 +27,8 @@ object WordCountNoBuffering {
 		}
 		
 		/**
-		 * This method was used temporarily as <tt>map</tt> for a one-time measurement of the performance with the 
-		 * Regex splitting option.
+		 * This method was used temporarily as <tt>map</tt> for a one-time measurement of
+		 * the performance with the Regex splitting option.
 		 */
 		def mapWithRegex(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
 			for {
