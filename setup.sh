@@ -10,9 +10,15 @@ then
   fi
   export PATH=$HADOOP_HOME/bin:$PATH
 fi
+if [ "$HOME" = "" ]
+then
+  echo "$0: Must define HOME, where the 'word-count' directories will be created."
+  exit 1
+fi
 
+echo "Creating hdfs directory $HOME/word-count:"
 # Set up the data directories and input file in HDFS.
-hadoop dfs -mkdir /word-count
-hadoop dfs -mkdir /word-count/input
+hadoop dfs -mkdir $HOME/word-count
+hadoop dfs -mkdir $HOME/word-count/input
 
-hadoop dfs -put all-shakespeare.txt /word-count/input
+hadoop dfs -put all-shakespeare.txt $HOME/word-count/input

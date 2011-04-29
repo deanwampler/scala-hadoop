@@ -10,6 +10,11 @@ then
   fi
   export PATH=$HADOOP_HOME/bin:$PATH
 fi
+if [ "$HOME" = "" ]
+then
+  echo "$0: Must define HOME, where the 'word-count' directories will be created."
+  exit 1
+fi
 
 function help {
 		echo "usage: $0 which_mapper input_directory output_directory"
@@ -61,12 +66,14 @@ case $1 in
 				;;
 esac
 
-output=/word-count/output-$map_kind
+input=$HOME/word-count/input
+output=$HOME/word-count/output-$map_kind
+echo "Using input  directory: $input"
 echo "Using output directory: $output"
 
 test_and_delete_output $output
 
 export HADOOP_CLASSPATH=target/scala_2.8.1/classes:project/boot/scala-2.8.1/lib/scala-library.jar
 
-time hadoop wordcount.WordCount "$@" /word-count/input $output
+time hadoop wordcount.WordCount "$@" $input $output
 
