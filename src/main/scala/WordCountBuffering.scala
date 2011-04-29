@@ -15,7 +15,7 @@ object WordCountBuffering {
 		
 		val words = new scala.collection.mutable.HashMap[String,Int]
 		// Save the output collector so we can use it in close. Is this safe??
-		var outputCollector: OutputCollector[Text, IntWritable] = _;
+		var outputCollector: OutputCollector[Text, IntWritable] = _
 
 		def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
 			outputCollector = output
