@@ -41,11 +41,12 @@ See also the *TODOs* below.
 
 h3. Run Hadoop!
 
-    ./run.sh
+    ./run.sh mapper_N [-c | --use-combiner] input_directory output_directory
+    ./run.sh -h   # help describing the arguments.
 
 It will prompt you if the output directory already exists in HDFS; Hadoop won't write to it if it already exists. Hit return (default) to delete the directory.
 
-You can also specify an argument to indicate the kind of mapper to use:
+You specify an argument to indicate the kind of mapper to use:
 
 | Flag | Description |
 | *1*, *no*, or *no-buffer* | Do no buffering in the WordCount mapper; just emit a count of 1 for each word encountered, every time it is encountered. The input text is split using String.split("\s+"), then undesired characters (like punctuation) are removed. (This last step adds significant overhead!) |
@@ -54,6 +55,8 @@ You can also specify an argument to indicate the kind of mapper to use:
 | *4*, *buffer-flush* | Like "buffer", but also flushes and resets the count records if the number of words crosses a size threshold. |
 
 See *Test Runs* below for a discussion of what these options mean.
+
+If the '--use-combiner' option is specifed, the reducer is used as a combiner.
 
 h4. View the Results
 
@@ -143,5 +146,5 @@ The flushing was set to flush every 1000 words, so the benefit of reduced memory
 
 There is a significant performance improving when using the StringTokenizer vs. the regular expression for splitting the text into words. This may be due in part to the fact that the regex approach parses the strings into words and then further removes non-alphanumeric characters. However, this approach does a better job isolating true words, e.g., "hello" and "hello!" become just "hello". 
 
-h2. Notes
+Not shown are runs Using the combiner (which was added after the test runs above). Using a combiner with option 1 (no buffering) is slightly slower than using in-mapper buffering, because Hadoop writes the mapper output to disk and then reads it back for the combiner. However, using a combiner is a clean way to avoid the potentially excessive memory usage of in-mapper buffering.
 
