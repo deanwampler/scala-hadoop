@@ -84,6 +84,6 @@ echo "Using output directory: $output"
 
 test_and_delete_output $output
 
-echo "running: hadoop wordcount.WordCount "$@" $input $output"
+echo "running: hadoop wordcount.WordCount $@ $input $output"
 time hadoop wordcount.WordCount "$@" $input $output
 
