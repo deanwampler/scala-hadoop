@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8b7c133f-56fb-4f9e-8b9b-d4651a874426" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/project/build/WordCountProject.scala" afterPath="$PROJECT_DIR$/project/build/WordCountProject.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="scala-hadoop.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -315,7 +315,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="102" width="1280" height="694" extended-state="0" />
+    <frame x="10" y="299" width="1280" height="694" extended-state="0" />
     <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
