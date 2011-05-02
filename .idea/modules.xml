@@ -1,6 +1,10 @@
-<project version="4"><component name="ProjectModuleManager">
-      <modules>
-      <module fileurl="file://$PROJECT_DIR$/project/project.iml" filepath="$PROJECT_DIR$/project/project.iml"></module>
-      <module fileurl="file://$PROJECT_DIR$/WordCount.iml" filepath="$PROJECT_DIR$/WordCount.iml"></module>
-      </modules>
-    </component></project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/WordCount.iml" filepath="$PROJECT_DIR$/WordCount.iml" />
+      <module fileurl="file://$PROJECT_DIR$/project/project.iml" filepath="$PROJECT_DIR$/project/project.iml" />
+    </modules>
+  </component>
+</project>
+

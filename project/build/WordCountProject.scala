@@ -20,7 +20,7 @@ class WordCountProject(info: ProjectInfo) extends DefaultProject(info)
 
 	lazy val hadoopModuleConfig = ModuleConfiguration("com/cloudera/hadoop/", ClouderaMavenRepo)
 
-  lazy val hadoopCore = "com.cloudera.hadoop" % "hadoop-core" % "0.20.2-737"
+  lazy val hadoopCore = "org.apache.hadoop" % "hadoop-core" % "0.20.2-cdh3u0"
   lazy val scalaTest = "org.scalatest" % "scalatest" % "1.2" % "test"
 
   override def libraryDependencies = Set(hadoopCore, scalaTest)
