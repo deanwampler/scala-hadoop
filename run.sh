@@ -41,6 +41,7 @@ function test_and_delete_output {
 }
 
 map_kind=
+hdfs_root=
 while [ $# -ne 0 ]
 do
 		case $1 in

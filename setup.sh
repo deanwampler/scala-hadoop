@@ -10,15 +10,43 @@ then
   fi
   export PATH=$HADOOP_HOME/bin:$PATH
 fi
-if [ "$HOME" = "" ]
+
+function help {
+		echo "usage: $0 [--hdfs-root=root]"
+    echo "The HDFS root defaults to your HOME."
+		exit 0
+}
+
+hdfs_root=
+while [ $# -ne 0 ]
+do
+		case $1 in
+				-h|--help)
+						help
+						;;
+				--hdfs-root)
+						shift
+						hdfs_root=$1
+						;;
+				--hdfs-root=*)
+						hdfs_root=${1#--hdfs-root=}
+						;;
+		esac
+		shift
+done
+if [ "$hdfs_root" = "" ]
 then
-  echo "$0: Must define HOME, where the 'word-count' directories will be created."
-  exit 1
+		if [ "$HOME" = "" ]
+		then
+				echo "$0: Must define HOME or specify the --hdfs_root option, where the 'word-count' directories will be created."
+				exit 1
+		fi
+		hdfs_root=$HOME
 fi
 
-echo "Creating hdfs directory $HOME/word-count:"
+echo "Creating hdfs directory $hdfs_root/word-count:"
 # Set up the data directories and input file in HDFS.
-hadoop dfs -mkdir $HOME/word-count
-hadoop dfs -mkdir $HOME/word-count/input
+hadoop dfs -mkdir $hdfs_root/word-count
+hadoop dfs -mkdir $hdfs_root/word-count/input
 
-hadoop dfs -put all-shakespeare.txt $HOME/word-count/input
+hadoop dfs -put all-shakespeare.txt $hdfs_root/word-count/input
