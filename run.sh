@@ -13,11 +13,6 @@ then
   fi
   export PATH=$HADOOP_HOME/bin:$PATH
 fi
-if [ "$HOME" = "" ]
-then
-  echo "$0: Must define HOME, where the 'word-count' directories will be created."
-  exit 1
-fi
 
 export HADOOP_CLASSPATH=target/scala_2.8.1/classes:project/boot/scala-2.8.1/lib/scala-library.jar
 
@@ -68,6 +63,13 @@ do
 						map_kind=buffer-flush
 						break
 						;;
+				--hdfs-root)
+						shift
+						hdfs_root=$1
+						;;
+				--hdfs-root=*)
+						hdfs_root=${1#--hdfs-root=}
+						;;
 		esac
 		shift
 done
@@ -76,9 +78,18 @@ then
 		echo "Must specify a mapper:"
 		help
 fi
-		
-input=$HOME/word-count/input
-output=$HOME/word-count/output-$map_kind
+if [ "$hdfs_root" = "" ]
+then
+		if [ "$HOME" = "" ]
+		then
+				echo "$0: Must define HOME or specify the --hdfs_root option, where the 'word-count' directories will be created."
+				exit 1
+		fi
+		hdfs_root=$HOME
+fi
+
+input=$hdfs_root/word-count/input
+output=$hdfs_root/word-count/output-$map_kind
 echo "Using input  directory: $input"
 echo "Using output directory: $output"
 

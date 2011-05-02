@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<classpath>
+<classpathentry kind="src" path="src/test/scala" output="target/scala_2.8.1/test-classes" including="**/*.scala" />
+<classpathentry kind="src" path="src/main/scala" including="**/*.scala" />
+<classpathentry kind="lib" path="lib/sbt-launch-0.7.4.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/commons-httpclient-3.0.1.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/jetty-util-6.1.14.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/kfs-0.3.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/jetty-6.1.14.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/core-3.1.1.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/commons-cli-1.2.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/ant-1.6.5.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/hadoop-core-0.20.2-737.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/commons-logging-1.1.1.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/commons-el-1.0.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/xmlenc-0.52.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/commons-net-1.4.1.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/jsp-api-2.1-6.1.14.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/oro-2.0.8.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/test/scalatest-1.2.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/junit-3.8.1.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/commons-codec-1.3.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/jsp-2.1-6.1.14.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/servlet-api-2.5-6.1.14.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/jasper-compiler-5.5.12.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/jasper-runtime-5.5.12.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/jets3t-0.7.1.jar" />
+<classpathentry kind="lib" path="lib_managed/scala_2.8.1/compile/hsqldb-1.8.0.10.jar" />
+<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER" />
+<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
+<classpathentry kind="output" path="target/scala_2.8.1/classes" />
+</classpath>
