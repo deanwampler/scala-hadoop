@@ -42,6 +42,8 @@ function test_and_delete_output {
 
 map_kind=
 hdfs_root=
+use_combiner=
+using_combiner=false
 while [ $# -ne 0 ]
 do
 		case $1 in
@@ -50,19 +52,15 @@ do
 						;;
 				1|no|no-buffer)
 						map_kind=no-buffer
-						break
 						;;
 				2|not|no-buffer-use-tokenizer)
-						map_kind=no-buffer-tokens
-						break
+						map_kind=no-buffer-use-tokenizer
 						;;
 				3|buffer)
 						map_kind=buffer
-						break
 						;;
 				4|buffer-flush)
 						map_kind=buffer-flush
-						break
 						;;
 				--hdfs-root)
 						shift
@@ -70,6 +68,10 @@ do
 						;;
 				--hdfs-root=*)
 						hdfs_root=${1#--hdfs-root=}
+						;;
+				-c|--use-combiner)
+						use_combiner=--use-combiner
+						using_combiner=true
 						;;
 		esac
 		shift
@@ -83,7 +85,7 @@ if [ "$hdfs_root" = "" ]
 then
 		if [ "$HOME" = "" ]
 		then
-				echo "$0: Must define HOME or specify the --hdfs_root option, where the 'word-count' directories will be created."
+				echo "$0: Can't determine where to write the HDFS files; must define \$HOME or specify the --hdfs-root option, where the 'word-count' directories will be created."
 				exit 1
 		fi
 		hdfs_root=$HOME
@@ -91,11 +93,14 @@ fi
 
 input=$hdfs_root/word-count/input
 output=$hdfs_root/word-count/output-$map_kind
-echo "Using input  directory: $input"
-echo "Using output directory: $output"
+echo "Using:"
+echo "  Mapper:           $map_kind"
+echo "  Combiner?         $using_combiner"
+echo "  Input  directory: $input"
+echo "  Output directory: $output"
 
 test_and_delete_output $output
 
-echo "running: hadoop wordcount.WordCount $@ $input $output"
-time hadoop wordcount.WordCount "$@" $input $output
+echo "running: hadoop wordcount.WordCount $map_kind $use_combiner $input $output"
+time hadoop wordcount.WordCount "$map_kind" $use_combiner $input $output
 

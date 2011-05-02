@@ -13,7 +13,7 @@ fi
 
 function help {
 		echo "usage: $0 [--hdfs-root=root]"
-    echo "The HDFS root defaults to your HOME."
+    echo "The HDFS root defaults to $HOME."
 		exit 0
 }
 
@@ -38,7 +38,7 @@ if [ "$hdfs_root" = "" ]
 then
 		if [ "$HOME" = "" ]
 		then
-				echo "$0: Must define HOME or specify the --hdfs_root option, where the 'word-count' directories will be created."
+				echo "$0: Can't determine where to write the HDFS files; must define \$HOME or specify the --hdfs-root option, where the 'word-count' directories will be created."
 				exit 1
 		fi
 		hdfs_root=$HOME
