@@ -8,21 +8,20 @@ object WordCount {
 
 	// The "--hdfs-root" option applies to the driver script.
 	val HELP =
-"""Usage: WordCount *which_mapper* [-c | --use-combiner] [--hdfs-root=root] input_directory output_directory
+"""Usage: WordCount *which_mapper* [-c | --use-combiner] input_directory output_directory
 where *which_mapper* is one of the following options:
   1 | no | no-buffer   Simplest algorithm, but least efficient.
   2 | not | no-buffer-use-tokenizer  Like 'no', but uses a less efficient StringTokenizer, which yields more accurate results.
   3 | buffer           Buffer the counts and emit just one key-count pair for each work key.
   4 | buffer-flush     Like 'buffer', but flushes data more often to limit memory usage.
 and
-  -c | --use-combiner  Use the reducer is used as a combiner.
-  --hdfs-root=root     Use 'root' as the root for HDFS (default: HOME)"""
+  -c | --use-combiner  Use the reducer is used as a combiner."""
 
 	def main(args: Array[String]): Unit = {
 
 		val (mapper, useCombiner, inputPath, outputPath) = parseArgs(args.toList) match {
 			case Settings(Some(m), useC, Some(in), Some(out)) => (m, useC, in, out)
-			case _ => error("Invalid settings returned by parseArgs")
+			case _ => error("Invalid settings returned by parseArgs for input args: "+args)
 		}
 		println(mapper.getClass.getName)
 
@@ -56,7 +55,7 @@ and
 				println(HELP)
 			  exit(0)
 			case _ if (args.length < 3) =>
-				error(HELP)
+				error("Input arguments: "+args+"\n"+HELP)
 			case _ => // continue
 		}
 
@@ -79,8 +78,7 @@ and
 				  else if (settings.outputPath == None)
 						parse(tail, settings.copy(outputPath = Some(s)))
 				  else {
-						println("Unrecognized argument '" + s + "'")
-						print(HELP)
+						println("Unrecognized argument '" + s + "' in input arguments: "+args+"\n"+HELP)
   					exit (1)
 					}
 			}
