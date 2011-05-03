@@ -3,11 +3,13 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/project/boot/scala-2.8.1/lib/scala-compiler.jar!/" />
       <root url="jar://$PROJECT_DIR$/project/boot/scala-2.8.1/lib/scala-library.jar!/" />
+      <root url="file://$PROJECT_DIR$/lib_managed/scala_2.8.1/compile" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
       <root url="jar://$PROJECT_DIR$/project/boot/scala-2.8.1/lib/scala-compiler-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/project/boot/scala-2.8.1/lib/scala-library-sources.jar!/" />
     </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/lib_managed/scala_2.8.1/compile" recursive="false" />
   </library>
 </component>
