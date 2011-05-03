@@ -17,7 +17,7 @@ where *which_mapper* is one of the following options:
 and
   -c | --use-combiner  Use the reducer is used as a combiner."""
 
-	def main(args: Array[String]): Unit = {
+	def main(args: Array[String]) {
 
 		val (mapper, useCombiner, inputPath, outputPath) = parseArgs(args.toList) match {
 			case Settings(Some(m), useC, Some(in), Some(out)) => (m, useC, in, out)
