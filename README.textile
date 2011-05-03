@@ -10,14 +10,22 @@ h3. Install Hadoop
 
 You'll need to install the Hadoop distribution. A good place to get Hadoop is at the Cloudera download site, "http://www.cloudera.com/downloads/":http://www.cloudera.com/downloads/. Then, do one of the following, assuming *hadoop_home* is where you installed Hadoop:
 
-* Put *hadoop_home/bin* on your *PATH* or...
-* Define the environment *HADOOP_HOME* to point to *hadoop_home*.
+* Put @hadoop_home/bin@ on your @PATH@ or...
+* Define the environment @HADOOP_HOME@ to point to @hadoop_home@.
 
-*Note:* at the time of this writing, only the hadoop-core-X.Y.Z-A.jar is required.
+*Note:* at the time of this writing, only the @hadoop-core-0.20.0-cdh3u0.jar@ is required.
 
-h3. Run the *setup.sh* script to put the sample data into HDFS. 
+h3. Run the @setup.sh@ script to put the sample data into HDFS. 
 
-Using a bash-compatible shell, run the *setup.sh* script to import the data files into HDFS. If you get an error, check that your *HADOOP_HOME* or *PATH* is set correctly.
+Using a bash-compatible shell, run the @setup.sh@ script to import the data files into HDFS. If you get an error, check that your @HADOOP_HOME@ or @PATH@ is set correctly. By default, it will use @$HOME@ as the HDFS "root" and create a directory tree @word-count@, unless you specify a different root using the @--hdfs-root=root@ option.
+
+<pre>
+<code>
+    ./setup.sh [--hdfs-root=root]
+    ./setup.sh -h   # help describing the arguments.
+</code>
+</pre>
+
 
 If you don't have a bash shell, you can run the same *hadoop dfs* commands from your windows shell.
 
@@ -25,15 +33,22 @@ h3. Build with SBT
 
 *SBT* is a popular build tool for Scala. For convenience, the sbt jar file is included in the "lib" directory and a driver script is included in the root directory:
 
+<pre>
+<code>
     ./sbt
+</code>
+</pre>
 
 h3. Run SBT Commands
 
 After starting sbt, run these commands at the '>' prompt. The '#...' are comments.
-
+<pre>
+<code>
     update   # download dependencies    
     compile  # build everything
     quit     # exit sbt
+</code>
+</pre>
 
 The compile step will produce several warnings about deprecated types and methods. The examples use the pre 0.20 Hadoop API, since that's what most of the available Hadoop documentation uses. The compile step should contain a "[success] Successful" message near the end of its output.
 
@@ -41,28 +56,40 @@ See also the *TODOs* below.
 
 h3. Run Hadoop!
 
-    ./run.sh mapper_N [-c | --use-combiner] input_directory output_directory
+<pre>
+<code>
+    ./run.sh which_mapper [-c | --use-combiner] [--hdfs-root=root | input_directory output_directory]
     ./run.sh -h   # help describing the arguments.
+</code>
+</pre>
 
-It will prompt you if the output directory already exists in HDFS; Hadoop won't write to it if it already exists. Hit return (default) to delete the directory.
+It will prompt you if the output directory already exists in HDFS; Hadoop won't write to it if it already exists. Hit return (default) to delete the directory. 
 
-You specify an argument to indicate the kind of mapper to use:
+*Note:* If you used the @--hdfs-root=root@ option with @setup.sh@, use the same option here. In this case, the @input_directory@ will be @root/input@ and the @output_directory@ will be @root/output@.
+
+The only required argument is the one that specifies the kind of mapper to use:
 
 | Flag | Description |
-| *1*, *no*, or *no-buffer* | Do no buffering in the WordCount mapper; just emit a count of 1 for each word encountered, every time it is encountered. The input text is split using String.split("\s+"), then undesired characters (like punctuation) are removed. (This last step adds significant overhead!) |
-| *2*, *not*, or *no-buffer-use-tokenizer* | Do no buffering in the WordCount mapper, like the previous "no-buffer" case, but split the string using Java's StringTokenizer class. This version is roughly as efficient, but does a better job eliminating "garbage" words and characters. |
-| *3*, *buffer* | In each mapper instance, buffer the total counts for each word and then emit the final counts when the mapper is "closed". (Uses the StringTokenizer approach, like "not".) |
-| *4*, *buffer-flush* | Like "buffer", but also flushes and resets the count records if the number of words crosses a size threshold. |
+| @1@, @no@, or @no-buffer@ | Do no buffering in the WordCount mapper; just emit a count of 1 for each word encountered, every time it is encountered. The input text is split using String.split("\s+"), then undesired characters (like punctuation) are removed. (This last step adds significant overhead!) |
+| @2@, @not@, or @no-buffer-use-tokenizer@ | Do no buffering in the WordCount mapper, like the previous "no-buffer" case, but split the string using Java's StringTokenizer class. This version is roughly as efficient, but does a better job eliminating "garbage" words and characters. |
+| @3@, @buffer@ | In each mapper instance, buffer the total counts for each word and then emit the final counts when the mapper is "closed". (Uses the StringTokenizer approach, like "not".) |
+| @4@, @buffer-flush@ | Like "buffer", but also flushes and resets the count records if the number of words crosses a size threshold. |
 
-See *Test Runs* below for a discussion of what these options mean.
+See *Test Runs* below for a discussion of how these options impact performance.
 
-If the '--use-combiner' option is specifed, the reducer is used as a combiner.
+If the @--use-combiner@ option is specifed, the reducer is used as a combiner.
 
 h4. View the Results
 
-    hadoop dfs -cat /word-count/output-*/part-00000 | head -20
+<pre>
+<code>
+    hadoop dfs -cat $root/word-count/output-*/part-00000 | head -20
+</code>
+</pre>
 
-The output will be thousands of lines. Here, I just view the first 20 with the *head* command. Note that you'll have to pick the output directory that corresponds to the kind of mapper used. The suffix after the "output-" will be one of "no-buffer", "buffer", "buffer-flush".
+Here @$root@ is either @$HOME@ or the the @--hdfs-root=root@ value.
+
+The output will be thousands of lines. Hence, the @head -20@ limits the output to 20 lines. Note that you'll have to pick the output directory that corresponds to the kind of mapper used. The suffix after the @output-*@ will be one of @output-no-buffer@, @output-no-buffer-use-tokenizer@, @output-buffer@, @output-buffer-flush@.
 
 h2. Files
 
@@ -83,14 +110,7 @@ A partial list of the contents.
 | src/main/scala/WordCountReduce.scala | The reducer used for all cases. |
 | target | Where build products are written |
 
-h2. TODOs
-
-# Add a run action to the sbt project that properly invokes hadoop.
-# Add a setup action to the sbt project that puts the data files into HDFS.
-# Add the use of a Combiner.
-# TESTS!
-
-h3. Test Runs
+h2. Test Runs
 
 The different mappers apply different optimizations. The "no-buffer" cases simply writes a word-1 pair every time a word is encountered. This is the simplest algorithm, for the mapper, but it generates the most IO to the reducers and the largest sort and shuffle overhead.
 
@@ -147,4 +167,18 @@ The flushing was set to flush every 1000 words, so the benefit of reduced memory
 There is a significant performance improving when using the StringTokenizer vs. the regular expression for splitting the text into words. This may be due in part to the fact that the regex approach parses the strings into words and then further removes non-alphanumeric characters. However, this approach does a better job isolating true words, e.g., "hello" and "hello!" become just "hello". 
 
 Not shown are runs Using the combiner (which was added after the test runs above). Using a combiner with option 1 (no buffering) is slightly slower than using in-mapper buffering, because Hadoop writes the mapper output to disk and then reads it back for the combiner. However, using a combiner is a clean way to avoid the potentially excessive memory usage of in-mapper buffering.
+
+h2. TODOs
+
+# Add a run action to the sbt project that properly invokes hadoop.
+# Add a setup action to the sbt project that puts the data files into HDFS.
+# Add the use of a Combiner.
+# TESTS!
+
+h2. Possible Extensions
+
+There is a lot that can be done to experiment with the code.
+
+# Filter out "stop words", e.g., "the", "a", "an", etc.
+# Implement other text processing algorithms.
 
