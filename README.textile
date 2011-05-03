@@ -79,7 +79,28 @@ See *Test Runs* below for a discussion of how these options impact performance.
 
 If the @--use-combiner@ option is specifed, the reducer is used as a combiner.
 
-h4. View the Results
+h4. Running Hadoop Directly
+
+The @run.sh@ script sets up the arguments to the application and the @HADOOP_CLASSPATH@. Here is a command line that would run Hadoop directly, if you don't want to use @run.sh@.
+
+<pre>
+<code>
+    env HADOOP_CLASSPATH=target/scala_2.8.1/classes/:project/boot/scala-2.8.1/lib/scala-library.jar hadoop wordcount.WordCount no-buffer $HOME/word-count/input $HOME/word-count/output
+</code>
+</pre>
+
+Where it the @no-buffer@ mapper is used and the @word-count@ HDFS directory is in @$HOME@. Notice that we have to set the @HADOOP_CLASSPATH@ to contain the compiled artifacts (as built by @sbt@) and the Scala runtime jar (using the location in the @sbt@ project).
+
+Here is a variation of the command using two lines:
+
+<pre>
+<code>
+    export HADOOP_CLASSPATH=target/scala_2.8.1/classes/:project/boot/scala-2.8.1/lib/scala-library.jar 
+    hadoop wordcount.WordCount no-buffer $HOME/word-count/input $HOME/word-count/output
+</code>
+</pre>
+
+h3. View the Results
 
 <pre>
 <code>
