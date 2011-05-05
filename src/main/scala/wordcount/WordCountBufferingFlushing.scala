@@ -23,7 +23,7 @@ object WordCountBufferingFlushing {
 
 		def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
 			outputCollector = output
-			val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-'\"")
+			val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-@()[]&'\"")
 			while (tokenizer.hasMoreTokens) {
 				val wordString = tokenizer.nextToken
 				if (wordString.length > 0) {

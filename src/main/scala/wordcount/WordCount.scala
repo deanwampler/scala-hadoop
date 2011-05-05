@@ -12,10 +12,10 @@ object WordCount {
 where *which_mapper* is one of the following options:
   1 | no | no-buffer   Simplest algorithm, but least efficient.
   2 | not | no-buffer-use-tokenizer  Like 'no', but uses a less efficient StringTokenizer, which yields more accurate results.
-  3 | buffer           Buffer the counts and emit just one key-count pair for each work key.
+  3 | buffer           Buffer the counts and emit just one key-count pair for each work key. (Uses StringTokenizer.)
   4 | buffer-flush     Like 'buffer', but flushes data more often to limit memory usage.
 and
-  -c | --use-combiner  Use the reducer is used as a combiner."""
+  -c | --use-combiner  Use the reducer as a combiner."""
 
 	def main(args: Array[String]) {
 

@@ -16,7 +16,7 @@ object WordCountNoBufferingTokenization {
 	class Map extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
 		
 		def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
-			val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-'\"")
+			val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-@()[]&'\"")
 			while (tokenizer.hasMoreTokens) {
 				val wordString = tokenizer.nextToken
 				if (wordString.length > 0) {
