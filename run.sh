@@ -41,7 +41,7 @@ function test_and_delete_output {
 }
 
 map_kind=
-hdfs_root=
+hdfs_root=.
 use_combiner=
 using_combiner=false
 while [ $# -ne 0 ]
@@ -92,7 +92,8 @@ then
 fi
 
 input=$hdfs_root/word-count/input
-output=$hdfs_root/word-count/output-$map_kind
+output=$hdfs_root/word-count/output/$map_kind/$(date +'%Y%m%d-%H%M%S')
+
 echo "Using:"
 echo "  Mapper:           $map_kind"
 echo "  Combiner?         $using_combiner"

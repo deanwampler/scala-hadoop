@@ -50,3 +50,8 @@ hadoop dfs -mkdir $hdfs_root/word-count
 hadoop dfs -mkdir $hdfs_root/word-count/input
 
 hadoop dfs -put all-shakespeare.txt $hdfs_root/word-count/input
+hadoop dfs -mkdir $hdfs_root/word-count/output/
+hadoop dfs -mkdir $hdfs_root/word-count/output/buffer
+hadoop dfs -mkdir $hdfs_root/word-count/output/buffer-flush
+hadoop dfs -mkdir $hdfs_root/word-count/output/no-buffer
+hadoop dfs -mkdir $hdfs_root/word-count/output/no-buffer-use-tokenizer
