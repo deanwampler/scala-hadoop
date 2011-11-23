@@ -6,7 +6,6 @@ import org.apache.hadoop.mapred.{FileInputFormat, FileOutputFormat, JobConf, Job
 
 object WordCount {
 
-	// The "--hdfs-root" option applies to the driver script.
 	val HELP =
 """Usage: WordCount *which_mapper* [-c | --use-combiner] input_directory output_directory
 where *which_mapper* is one of the following options:
@@ -23,10 +22,10 @@ and
 			case Settings(Some(m), useC, Some(in), Some(out)) => (m, useC, in, out)
 			case _ => error("Invalid settings returned by parseArgs for input args: "+args)
 		}
-		println(mapper.getClass.getName)
 
 		val conf = new JobConf(this.getClass)
 		conf.setJobName("Word Count without Buffering")
+		conf.setJar("target/scala_2.8.1/wordcount_2.8.1-1.0.jar")
 
 		FileInputFormat.addInputPath(conf, new Path(inputPath))
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath))
