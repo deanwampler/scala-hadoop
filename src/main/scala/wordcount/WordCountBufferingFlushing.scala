@@ -27,7 +27,7 @@ object WordCountBufferingFlushing {
 			while (tokenizer.hasMoreTokens) {
 				val wordString = tokenizer.nextToken
 				if (wordString.length > 0) {
-					increment(wordString)
+					increment(wordString.toLowerCase)
 					count = flushIfLargerThan(count, MAX_SIZE)
 				}
 			}

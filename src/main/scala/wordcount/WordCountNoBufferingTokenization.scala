@@ -20,7 +20,7 @@ object WordCountNoBufferingTokenization {
 			while (tokenizer.hasMoreTokens) {
 				val wordString = tokenizer.nextToken
 				if (wordString.length > 0) {
-					word.set(wordString)
+					word.set(wordString.toLowerCase)
 					output.collect(word, one)
 				}
 			}
