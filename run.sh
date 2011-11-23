@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#--------------------------------------------
 # Run one of the hadoop sample jobs.
 #   ./run.sh -h 
 # for help on the options.
@@ -69,6 +70,13 @@ do
 				--hdfs-root=*)
 						hdfs_root=${1#--hdfs-root=}
 						;;
+				--output)    # primarily for testing; see acceptance-test.sh
+						shift
+						output=$1
+						;;
+				--output=*)  # primarily for testing; see acceptance-test.sh
+						output=${1#--output=}
+						;;
 				-c|--use-combiner)
 						use_combiner=--use-combiner
 						using_combiner=true
@@ -92,7 +100,7 @@ then
 fi
 
 input=$hdfs_root/word-count/input
-output=$hdfs_root/word-count/output/$map_kind/$(date +'%Y%m%d-%H%M%S')
+[ -n "$output" ] || output=$hdfs_root/word-count/output/$map_kind/$(date +'%Y%m%d-%H%M%S')
 
 echo "Using:"
 echo "  Mapper:           $map_kind"
