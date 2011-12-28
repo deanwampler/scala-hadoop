@@ -10,18 +10,18 @@ export root=$(dirname $0)
 
 do_test() {
 		kind=$1
-		input=$root/word-count/input/
-		output=$root/word-count/output/$kind/$(date +'%Y%m%d-%H%M%S')/part-00000
+		input=$root/word-count/input
+		output=$root/word-count/output/$kind/$(date +'%Y%m%d-%H%M%S')
 		golden=$root/word-count/golden/$kind/part-00000	
-		run.sh $kind $input $output
-		diff -q $golden $output
+		run.sh $kind --input=$input --output=$output
+		diff -q $golden $output/part-00000
 		if [ $? = 0 ]
 		then
 				echo "SUCCESS: Test for $kind passed."
 		else
 				echo "ERROR: Test for $kind failed!"
 				echo "Run this command to see the differences:"
-				echo "diff $golden $output"
+				echo "diff $golden $output/part-00000"
 				exit 1
 		fi
 }

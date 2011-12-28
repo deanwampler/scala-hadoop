@@ -38,12 +38,10 @@ fi
 run_wordcount() {
 		if [ -f "$HADOOP_HOME/bin/hadoop-config.sh" ]
 		then
-				#echo "sourcing $HADOOP_HOME/bin/hadoop-config.sh"
 				. "$HADOOP_HOME/bin/hadoop-config.sh"
 		fi
     if [ -f "$HADOOP_CONF_DIR/hadoop-env.sh" ]
 		then 
-				#echo "sourcing $HADOOP_CONF_DIR/hadoop-env.sh"
 				. "$HADOOP_CONF_DIR/hadoop-env.sh"
 		fi
 		SCALA_OPTS="$SCALA_OPTS -J-Xmx512m"
@@ -52,8 +50,8 @@ run_wordcount() {
 		do
 				cp="$cp:$f"
 		done
-		echo "running: scala -classpath \"...\" $APP_JAR $@"
-		$NOOP scala -classpath "$cp" "$APP_JAR" "$@"
+		echo "running: scala -classpath \"...:$APP_JAR\" driver.Driver WordCount $@"
+		$NOOP scala -classpath "$cp:$APP_JAR" driver.Driver WordCount "$@"
 }
 
 
@@ -68,15 +66,19 @@ where the options include the following:
                      NOTE: use this argument AFTER --local or --hdfs.
                      For HDFS, defaults to "/user/$USER.
                      For local, defaults to "file:$PWD.
+  --input=input      Input to process. Primarily for testing; see acceptance-test.sh.
+                     Defaults to $hdfs_root/word-count/input
   --output=outdir    Where output goes. Primarily for testing; see acceptance-test.sh.
+                     Defaults to $hdfs_root/word-count/output/$which_mapper/YYYYMMDD-hhmmss
   --use-combiner     Use the reducer as a combiner.
-The following arguments are correspond to "which_mapper":
+The following arguments correspond to "which_mapper":
   1 | no | no-buffer  Use the most naive mapper that emits "(word,1)" pairs.
   2 | not | no-buffer-use-tokenizer   Use the naive mapper, but do better text tokenization.
   3 | buffer          Use buffered counts of "(word,N)" pairs.
   4|buffer-flush      Use buffered word counts with periodic flushing to conserve memory.
+
 Any other arguments are passed to the process. The following Hadoop "generic" 
-options are supported
+options are also supported:
   -conf config_file          Use this configuration file.
   -D property=value          Use the given value for the property.
   -fs local|namenode:port    Specify the name node.
@@ -96,8 +98,6 @@ using_combiner=false
 hdfs_root=hdfs://localhost/user/$USER/
 using_local_mode=false
 other_args=()
-: ${HADOOP_CONF_DIR:="$HADOOP_HOME/conf"}
-export HADOOP_CONF_DIR
 while [ $# -ne 0 ]
 do
 		case $1 in
@@ -125,6 +125,20 @@ do
 						hdfs_root="file://$PWD/"
 						using_local_mode=true
 						;;
+				--input)
+						shift
+						input=$1
+						;;
+				--input=*)
+						input=${1#--input=}
+						;;
+				--output)
+						shift
+						output=$1
+						;;
+				--output=*)
+						output=${1#--output=}
+						;;
 				--hdfs-root)
 						shift
 						hdfs_root=$1
@@ -132,20 +146,13 @@ do
 				--hdfs-root=*)
 						hdfs_root=${1#--hdfs-root=}
 						;;
-				--output)    # primarily for testing; see acceptance-test.sh
-						shift
-						output=$1
-						;;
-				--output=*)  # primarily for testing; see acceptance-test.sh
-						output=${1#--output=}
-						;;
 				--use-combiner)
 						use_combiner=--use-combiner
 						using_combiner=true
 						;;
 				*)
 						other_args[${#other_args[@]}]=$1
-						echo "other_args: ${other_args[@]}"
+						;;
 		esac
 		shift
 done
@@ -155,11 +162,12 @@ then
 		help
 		exit 1
 fi
+
 # If not empty, append a '/'
 [ -n "$hdfs_root" -a "${hdfs_root%/}" = "$hdfs_root" ] && hdfs_root="$hdfs_root/"
 
-input=${hdfs_root}word-count/input
-[ -n "$output" ] || output=${hdfs_root}word-count/output/$map_kind/$(date +'%Y%m%d-%H%M%S')
+: ${input:=${hdfs_root}word-count/input}
+: ${output:=${hdfs_root}word-count/output/$map_kind/$(date +'%Y%m%d-%H%M%S')}
 
 echo "Using:"
 echo "  Mapper:           $map_kind"

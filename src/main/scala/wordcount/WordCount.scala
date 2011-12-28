@@ -18,33 +18,21 @@ where *which_mapper* is one of the following options:
 and
   --use-combiner  Use the reducer as a combiner."""
 
-	def main(args: Array[String]) {
-		sys.exit(ToolRunner.run(WordCount, args));
+	def helpAndExit(exitValue: Int = 0, message: String = "") = {
+		message match {
+		  case "" => 
+		  case _  => println(message)
+		}
+		println(HELP)
+		ToolRunner.printGenericCommandUsage(Console.out)
+	  sys.exit(exitValue)
 	}
 
 	override def run(args: Array[String]): Int = {
 		val conf = new JobConf(this.getClass)
-		conf.setJobName("Word Count without Buffering")
+		conf.setJobName("Word Count")
 
-		// Expects run.sh to set the these environment variables.
-		val scala_version = System.getenv.get("SCALA_VERSION") match {
-			case null => 
-				println("environment variable SCALA_VERSION not defined, using 2.9.1")
-			  "2.9.1"
-			case version => version
-		}
-		val project_version = System.getenv.get("PROJECT_VERSION") match {
-			case null => 
-				println("environment variable PROJECT_VERSION not defined, using 1.1")
-				"1.1"
-			case version => version
-		}
-
-		conf.setJar(String.format("%s/target/scala-%s/scala-hadoop_%s-%s.jar",
-															System.getProperty("user.dir"),
-															scala_version,
-															scala_version,
-															project_version))															
+		conf.setJarByClass(this.getClass)
 
 		val optionsParser = new GenericOptionsParser(conf, args);
 
@@ -70,6 +58,7 @@ and
 	}
 
 	private type MapperClass = Class[_ <: org.apache.hadoop.mapred.Mapper[_, _, _, _]]
+
 	private case class Settings(
 		mapperClass: Option[MapperClass],
 		useCombiner: Boolean,
@@ -79,11 +68,9 @@ and
 	private def parseArgs(args: List[String]) = {
 		args match {
 			case ("-h" | "--help") :: tail => 
-				println(HELP)
-			  ToolRunner.printGenericCommandUsage(Console.out);
-			  sys.exit(0)
+				helpAndExit()
 			case _ if (args.length < 3) =>
-				sys.error("Input arguments: "+args+"\n"+HELP)
+				helpAndExit(1, "Insufficient number of input arguments: "+args)
 			case _ => // continue
 		}
 
@@ -112,9 +99,9 @@ and
 			}
 		}
 		parse(args, Settings(None, false, None, None)) match {
-			case Settings(None, _, _, _) => sys.error ("Must specify a mapper.\n"+HELP)
-			case Settings(_, _, None, _) => sys.error ("Must specify an input path.\n"+HELP)
-			case Settings(_, _, _, None) => sys.error ("Must specify an output path.\n"+HELP)
+			case Settings(None, _, _, _) => helpAndExit (1, "Must specify a mapper.")
+			case Settings(_, _, None, _) => helpAndExit (1, "Must specify an input path.")
+			case Settings(_, _, _, None) => helpAndExit (1, "Must specify an output path.")
 			case settings => settings
 		}
   }
