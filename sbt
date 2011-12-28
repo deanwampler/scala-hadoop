@@ -1,6 +1,6 @@
 #!/bin/bash
 #------------------------------------------------------------------
-# sbt driver script.
+# sbt driver script. Uses sbt release 0.11.2
 #------------------------------------------------------------------
 
 maxheap=1024M
@@ -12,5 +12,5 @@ if [ -n "$debug" ] ; then
 fi
 
 # -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m is supposed to reduce PermGen errors.
-echo env java $JAVA_OPTIONS -Xmx$maxheap -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -jar lib/sbt-launch-0.7.4.jar "$@"
-env java $JAVA_OPTIONS -Xmx$maxheap -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -jar lib/sbt-launch-0.7.4.jar "$@"
+echo env java $JAVA_OPTIONS -Xmx$maxheap -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -jar lib/sbt-launch.jar "$@"
+env java $JAVA_OPTIONS -Xmx$maxheap -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -jar lib/sbt-launch.jar "$@"

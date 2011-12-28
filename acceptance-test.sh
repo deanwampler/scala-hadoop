@@ -3,16 +3,17 @@
 # A simple "acceptance test" that verifies
 # that the variations run successfully.
 # Takes no arguments.
-# Requires ./setup.sh to have been run first (just one)
+# Requires ./setup.sh to have been run first (just once)
 # and "sbt package".
 
 export root=$(dirname $0)
 
 do_test() {
 		kind=$1
-		golden=$root/word-count/golden/$kind/part-00000
+		input=$root/word-count/input/
 		output=$root/word-count/output/$kind/$(date +'%Y%m%d-%H%M%S')/part-00000
-		run.sh $kind --output $output
+		golden=$root/word-count/golden/$kind/part-00000	
+		run.sh $kind $input $output
 		diff -q $golden $output
 		if [ $? = 0 ]
 		then
