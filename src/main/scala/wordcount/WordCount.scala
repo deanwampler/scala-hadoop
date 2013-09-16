@@ -49,9 +49,9 @@ and
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath))
 
 		conf.setMapperClass(mapper)
-		conf.setReducerClass(classOf[Reduce])
+		conf.setReducerClass(classOf[WordCountReducer])
 		if (useCombiner)
-			conf.setCombinerClass(classOf[Reduce])
+			conf.setCombinerClass(classOf[WordCountReducer])
 
 		conf.setOutputKeyClass(classOf[Text])
 		conf.setOutputValueClass(classOf[IntWritable])

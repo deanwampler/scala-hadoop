@@ -94,14 +94,16 @@ object Dependency {
   // Include the Scala compiler itself for reification and evaluation of expressions. 
   val scalaCompiler = "org.scala-lang"    % "scala-compiler"  % BuildSettings.ScalaVersion
 	val hadoopCore    = "org.apache.hadoop" % "hadoop-core"     % "0.20.205.0"
-  val scalaTest     = "org.scalatest"     % "scalatest_2.10"  % "2.0.M5b"  %  "test"  withSources() 
+  val scalaTest     = "org.scalatest"     % "scalatest_2.10"  % "2.0.M5b"  %  "test"
+  val jUnit         = "junit"             % "junit"           % "4.10"     %  "test" 
+  val mrUnit        = "org.apache.mrunit" % "mrunit"          % "1.0.0"    % "test" classifier "hadoop1" 
 }
 
 object Dependencies {
   import Dependency._
 
   val scalaHadoop = Seq(
-    hadoopCore, scalaCompiler, scalaTest)
+    hadoopCore, scalaCompiler, scalaTest, jUnit, mrUnit)
 }           
 
 object ScalaHadoopBuild extends Build {
