@@ -46,7 +46,7 @@ First, you'll need to compile, test, and assemble a "fat" jar that contains all 
 
 The `sbt` command should be on your path, after installing it. So, run `sbt` at your command line to put you into the interactive shell. 
 
-Now, run these commands at the `sbt` prompt. The `#...` are comments.
+Now, run these commands at the `sbt` prompt. The `#...` are comments. Expect the first command to take a **long** time the first time you run it, because it will pull down all the dependencies, including a huge number of jars that Hadoop wants. This is a one-time event.
 
 	test      # Compile, then run the unit tests (will download dependencies first)    
 	assembly  # Build the all-inclusive (or mostly...) jar file
