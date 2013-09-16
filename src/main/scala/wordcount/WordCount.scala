@@ -6,6 +6,9 @@ import org.apache.hadoop.mapred.{FileInputFormat, FileOutputFormat, JobConf, Job
 import org.apache.hadoop.conf.Configured
 import org.apache.hadoop.util.{GenericOptionsParser, Tool, ToolRunner}
 
+// Enable existential types, which we use below in several places:
+import scala.language.existentials
+
 object WordCount extends Configured with Tool {
 
 	val HELP =
@@ -18,14 +21,13 @@ where *which_mapper* is one of the following options:
 and
   --use-combiner  Use the reducer as a combiner."""
 
-	def helpAndExit(exitValue: Int = 0, message: String = "") = {
+	def help(message: String = "") = {
 		message match {
 		  case "" => 
 		  case _  => println(message)
 		}
 		println(HELP)
 		ToolRunner.printGenericCommandUsage(Console.out)
-	  sys.exit(exitValue)
 	}
 
 	override def run(args: Array[String]): Int = {
@@ -38,8 +40,9 @@ and
 
 		val (mapper, useCombiner, inputPath, outputPath) = 
 			parseArgs(optionsParser.getRemainingArgs.toList) match {
-				case Settings(Some(m), useC, Some(in), Some(out)) => (m, useC, in, out)
-				case _ => sys.error("Invalid settings returned by parseArgs for input args: "+args)
+				case Right((m, useC, in, out)) => (m, useC, in, out)
+				case Left(0) => sys.exit(0)
+				case Left(_) => sys.error("Invalid settings returned by parseArgs for input args: "+args)
 			}
 
 		FileInputFormat.addInputPath(conf, new Path(inputPath))
@@ -65,18 +68,22 @@ and
 		inputPath:   Option[String],
 		outputPath:  Option[String])
 
-	private def parseArgs(args: List[String]) = {
+	private def parseArgs(args: List[String]): Either[Int,(MapperClass,Boolean,String,String)] = {
 		args match {
 			case ("-h" | "--help") :: tail => 
-				helpAndExit()
+				help()
+				Left(0)
 			case _ if (args.length < 3) =>
-				helpAndExit(1, "Insufficient number of input arguments: "+args)
+				help(s"Insufficient number of input arguments: $args")
+				Left(1)
 			case _ => // continue
 		}
 
-		def parse(a: List[String], settings: Settings): Settings = a match {
-			case Nil => settings
+		def parse(a: List[String], settings: Settings): Either[Int,Settings] = a match {
+			case Nil => Right(settings)
 			case head :: tail => head match {
+				case "WordCount" =>  // should be first arg; this class name!
+					parse(tail, settings)
 				case "1" | "no" | "no-buffer" => 
 					parse(tail, settings.copy(mapperClass = Some(classOf[WordCountNoBuffering.Map])))
 				case "2" | "not" | "no-buffer-use-tokenizer" => 
@@ -93,16 +100,17 @@ and
 				  else if (settings.outputPath == None)
 						parse(tail, settings.copy(outputPath = Some(s)))
 				  else {
-						println("Unrecognized argument '" + s + "' in input arguments: "+args+"\n"+HELP)
-  					sys.exit (1)
+						help(s"Unrecognized argument '$s' in input arguments: $args")
+						Left(1)
 					}
 			}
 		}
 		parse(args, Settings(None, false, None, None)) match {
-			case Settings(None, _, _, _) => helpAndExit (1, "Must specify a mapper.")
-			case Settings(_, _, None, _) => helpAndExit (1, "Must specify an input path.")
-			case Settings(_, _, _, None) => helpAndExit (1, "Must specify an output path.")
-			case settings => settings
+			case Right(Settings(None, _, _, _)) => help("Must specify a mapper."); Left(1)
+			case Right(Settings(_, _, None, _)) => help("Must specify an input path."); Left(1)
+			case Right(Settings(_, _, _, None)) => help("Must specify an output path."); Left(1)
+			case Right(Settings(Some(m), useC, Some(in), Some(out))) => Right((m, useC, in, out))
+			case Left(x) => Left(x)
 		}
   }
 }

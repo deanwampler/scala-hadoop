@@ -1,110 +1,100 @@
 # Programming Hadoop with Scala
 
-This is an experiment with Scala and Hadoop. Currently, it just uses the Standard Java APIs as is, specifically the Hadoop V0.20.20X `org.apache.hadoop.*.mapred` part of the API. Longer term, this project might evolve into a more idiomatic Scala binding or an alternative.
+[Dean Wampler](mailto:dean@concurrentthought.com)
 
-Some source and sample text data used here were adapted from [Data Intensive Text Processing with MapReduce](http://www.umiacs.umd.edu/~jimmylin/book.html) and [Cloudera's Tutorial](http://archive.cloudera.com/chd/3/hadoop-0.20.2+737/mapred_tutorial.html#Source+Code).
+This is an experiment using Scala and Hadoop's low-level Java APIs. It uses the Hadoop V0.20.20X/V1.0.X `org.apache.hadoop.*.mapred` part of the API, not the slightly newer, but incomplete `org.apache.hadoop.*.mapred`. Longer term, this project will support Hadoop V2.
 
-## Usage
+Working with the low level API is quite tedious and unproductive. It is the *assembly language* of Hadoop. You are far better off adopting [Scalding](https://github.com/twitter/scalding) for your general-purpose Hadoop programming and dropping to the low-level API only when necessary. Seriously, start there first. See my [Scalding-Workshop](https://github.com/deanwampler/scalding-workshop) for a quick guide to Scalding. If you need a Java toolkit, try [Cascading](http://cascading.org), on which Scalding is based.
 
-I've tried to make it easy to get started. You'll need a recent version of Hadoop and Scala 2.9.1 installed. Note that the build tool `sbt` grabs the corresponding jars using `sbt's` Maven and Ivy integration, but you'll still need to install these tools separately to run the applications.
+Some source and sample text data used here were adapted from [Data Intensive Text Processing with MapReduce](http://www.umiacs.umd.edu/~jimmylin/book.html) and [Cloudera's Tutorial](http://archive.cloudera.com/chd/3/hadoop-0.20.2+737/mapred_tutorial.html#Source+Code). All code that I wrote is Apache 2 licensed; see the `LICENSE` file.
+
+## Getting Started
+
+I've tried to make it easy to get started. You'll need a recent version of Hadoop installed to actually run the code, although the build pulls down all the dependences needed to build the application. 
 
 ### Hadoop Setup
 
-Install either the [Cloudera CDH3 distribution](http://www.cloudera.com/downloads/) or the [Apache distribution](http://hadoop.apache.org). Only the `hadoop-core-0.20.20X` or equivalent component is actually required. Note that `sbt` uses the `hadoop-core-0.20.205.0` Apache jar to compile the code.
+The easiest way to work with Hadoop is to install a virtual machine runner, like the one from VMWare, and download a VM from [Cloudera](http://www.cloudera.com/content/cloudera-content/cloudera-docs/DemoVMs/Cloudera-QuickStart-VM/cloudera_quickstart_vm.html), [Hortonworks](http://hortonworks.com/products/hortonworks-sandbox/), or [MapR](http://www.mapr.com/doc/display/MapR/Installing+the+MapR+Virtual+Machine). If you are on Windows, Microsoft now has a Hadoop port, but it may require Windows Server or Azure.
 
-Follow the directions provided on either site for configuring *pseudo-distributed* or *distributed* mode, if desired. However, you can also use *standalone* mode (without HDFS), if desired.
+Alternatively, on *nix systems, you can install Hadoop directly, such as a distribution from [Apache](http://hadoop.apache.org), [Cloudera](http://www.cloudera.com/downloads/), [Hortonworks](http://hortonworks.com/download/), and [MapR](http://www.mapr.com/products/download). Note that the Hadoop YARN and V2 MapReduce API have not been tested with this project and probably won't work (TODO).
 
-Several "driver" Bash scripts are provided. Assuming that *hadoop_home* is the directory where you installed Hadoop, do one of the following:
+If you're installing Hadoop yourself (as opposed to using a VM), follow the directions provided with the download for configuring *pseudo-distributed* mode (single machine) or *distributed* mode (for clusters). Or, just us the "local" *standalone* mode (without HDFS), which is easiest.
 
-* Put `hadoop_home/bin` in your `PATH` or...
-* Define the environment variable `HADOOP_HOME` to point to `hadoop_home`.
+Finally, if you want to test in HDFS, copy the provided `word-count` data directory to HDFS:
+
+	hadoop fs -put word-count word-count
+
+The last argument is actually `hdfs:///user/$USER/word-count`, where `$USER` is your user name. Change that argument to put it somewhere else.
+
+### SBT Setup
+
+SBT is the *de facto* standard build tool for Scala applications. You'll need to install the [sbt launcher](http://www.scala-sbt.org/). The project build file (`project/Build.scala`) will pull the rest of the dependencies, including Scala 2.10.X.
+
+The build file uses the `hadoop-core-0.20.205.0` Apache jar to compile the code. This could mean that subtle differences between this version and your installed Hadoop could cause strange errors when you run the application. If so, change the definition of `hadoopCore` in `project/Build.scala` to point to an appropriate Maven repo for your Hadoop distribution.
+
+An alternative is to delete (or comment out) this line and *copy* your Hadoop core jar file to the `lib` directory (you'll need to create `lib` first). SBT will automatically use such jars as "unmanaged" dependencies.
 
 ### Scala Setup
 
-The easiest way to install Scala is to use the [Typesafe Stack](http://typesafe.com/stack). Follow the installation instructions.
+You *don't* need to install Scala to use this project, but if you want to explore it some more, the easiest way to install Scala is to use the [Typesafe Stack](http://typesafe.com/stack). Follow the installation instructions there.
 
-### Run the setup.sh script to put the sample data into HDFS. 
+## Building and Running the Applications
 
-If you are **not** using *pseudo-distributed* or *distributed* mode, then skip to the next section, [Build with SBT].
-
-If *pseudo-distributed* or *distributed* mode, start your cluster (or at least start HDFS). For example, run `$HADOOP_HOME/bin/start-dfs.sh`.
-
-Using a bash-compatible shell, run the `setup.sh` script to import the data files into HDFS. If you get an error, check that your `HADOOP_HOME` or `PATH` is set correctly. By default, it will create a `word-count` directory tree under your HDFS "home" directory, unless you specify a different root using the `--hdfs-root=root` option.
-
-	./setup.sh -h   # help describing the arguments.
-	./setup.sh [--hdfs-root=root]
-
-If you don't have a bash shell, you can run the same *hadoop dfs* commands in that script from your command line.
+First, you'll need to compile, test, and assemble a "fat" jar that contains all the dependencies, including the Scala runtime. (The Hadoop jar files and its dependencies are not included in this jar...).
 
 ### Build with SBT
 
-*SBT* is a popular build tool for Scala. For convenience, the `sbt` jar file is included in the project's `lib` directory and a driver `sbt` script is included in the root directory. (Note that we recently upgraded to `sbt` v0.11.2.)
+The `sbt` command should be on your path, after installing it. So, run `sbt` at your command line to put you into the interactive shell. 
 
-	./sbt
+Now, run these commands at the `sbt` prompt. The `#...` are comments.
 
-Next, run these commands at the `>` prompt. The `#...` are comments.
+	test      # Compile, then run the unit tests (will download dependencies first)    
+	assembly  # Build the all-inclusive (or mostly...) jar file
+	quit      # exit sbt
 
-	update   # download dependencies    
-	package  # compile everything and build the jar file
-	quit     # exit sbt
-
-The `package` step should contain a `[success] ...` message at the end of its output. (See also the *TODOs* below.)
+Each step should contain a `[success] ...` message at the end of its output.
 
 ### Run Hadoop!
 
 Currently, a classic *Word Count* algorithm is implemented, with several variations of the *mapper*. The simplest mapper implementation outputs a separate `(word, 1)` pair for every occurrence of every word found, which uses network and disk resources inefficiently. Other variations improve this usage by caching counts and emit `(word, N)` pairs, etc. The details are explained in the table below.
 
-The `run.sh` script lets you run each configuration. Use `run.sh -h` to see the possible options. Again, you can use *local/standalone*, *pseudo-distributed*, or *distributed* mode, as desired. (The default is *(pseudo-)distributed* mode; whichever you have configured.)
+The `run.sh` script lets you run each configuration. Use `run.sh -h` to see the possible options. Again, you can use *local/standalone*, *pseudo-distributed*, or *distributed* mode, as desired. (The default is *pseudo-distributed* or *distributed* mode; whichever you have configured.)
 
 	./run.sh -h   # Help message that describes the options.
 
-*Note:* If you used the `--hdfs-root=root` option with `setup.sh` above, use the same option here. In this case, the `input_directory` will be `root/input` and the `output_directory` will be `root/output`.
-
 We'll discuss some of the options here. The only required argument specifies the kind of mapper to use:
 
-| Flag Synonyms ||| Description ||
-| :-: | :- | :- | :---------- |
-| `1` | `no` | `no-buffer` | Do no buffering in the WordCount mapper; just emit a count of 1 for each word encountered, every time it is encountered. The input text is split using String.split("\s+"), then undesired characters (like punctuation) are removed. (This last step adds significant overhead!) |
-| `2` | `not` | `no-buffer-use-tokenizer` | Do no buffering in the WordCount mapper, like the previous "no-buffer" case, but split the string using Java's StringTokenizer class. This version is roughly as efficient, but does a better job eliminating "garbage" words and characters. |
-| `3` | `buffer` || In each mapper instance, buffer the total counts for each word and then emit the final counts when the mapper is "closed". (Uses the StringTokenizer approach, like "not".) |
-| `4` | `buffer-flush` || Like "buffer", but also flushes and resets the count records if the number of words crosses a size threshold. |
+* `1`, `no` or `no-buffer`: Do no buffering in the WordCount mapper; just emit a count of 1 for each word encountered, every time it is encountered. The input text is split using `String.split("\s+")`, then undesired characters (like punctuation) are removed. (This last step adds significant overhead!)
+* `2`, `not` or `no-buffer-use-tokenizer`: Do no buffering in the WordCount mapper, like the previous "no-buffer" case, but split the string using Java's `StringTokenizer` class. This version is roughly as efficient, but does a better job eliminating "garbage" words and characters.
+* `3` or `buffer`: In each mapper instance, buffer the total counts for each word and then emit the final counts when the mapper is "closed". (Uses the `StringTokenizer` approach, like "not".)
+* `4` or `buffer-flush`: Like `buffer`, but also flushes and resets the count records if the number of words crosses a size threshold.
 
-See *Test Runs* below for a discussion of how these options impact performance.
+See the **Test Runs** below for a discussion of how these options impact performance.
 
-If the `--use-combiner` option is specifed, the Reducer is used as a Combiner.
+Two other interesting arguments are the following:
+
+* `--local`: Run in *local* mode, bypassing HDFS and the JobTracker. The easiest way to run these applications.
+* `--use-combiner`: tells the application to use the Reducer class as a Combiner, too.
 
 The `acceptance-test.sh` script exercises the different configuration options and verifies that they work as expected. It should finish with a `SUCCESS` message if all configurations work as expected. For each configuration, it runs the application, then compares the output, which is written to a `./word-count/output/...` directory to a corresponding *golden* file under `./word-count/golden/...`
 
-**Note:** I've had trouble using the `$HADOOP_HOME/bin/hadoop` driver script with Scala code, possibly because the sequence Hadoop uses for loading jar files doesn't let it load the Scala standard library jar before it's actually needed. (I'm speculating here...) To avoid this problem, `run.sh` does *not* use the `hadoop` driver script. Instead, it uses the `scala` driver and manages some of the required environment setup itself (but not everything handled by `hadoop`!). Feedback welcome!!
-
 ### View the Results
 
-If you're using HDFS, the following command will show you the results. The `$root` defaults to `/user/$USER` or whatever you specified for `--hdfs-root`. The `<kind>` placeholder corresponds to the mapper you used, one of `no-buffer`, `no-buffer-use-tokenizer`, `buffer`, `buffer-flush`. 
+If you're using HDFS, the following command will show you the results. 
 
-	hadoop dfs -cat $root/word-count/output/<kind>/part-00000 | more
+	hadoop dfs -cat word-count/output/<kind>/part-00000 | more
+
+Here, the `<kind>` placeholder corresponds to the mapper you used, one of `no-buffer`, `no-buffer-use-tokenizer`, `buffer`, `buffer-flush`. The parent `word-count` directory is actually in your HDFS home directory, `/user/$USER`. 
 
 ## Files
 
 A partial list of the contents of this project.
 
-| Files/Directories | Description ||
-| :---------------- | :---------- |
-| `sbt` | Runs the *Simple Build Tool* (sbt) |
-| `setup.sh` | Sets up the data and directories in HDFS (if used). |
-| `run.sh` | Run the hadoop jobs (after building in `sbt`). |
-| `lib` | "Unmanaged" support libraries, like the `sbt` jar. |
-| `project` | `sbt` support directory tree. |
-| `src` | Tree for all sources |
-| `src/main/scala/WordCount.scala` | The "main" routine. |
-| `src/main/scala/WordCountNoBuffering.scala` | The mapper with the most naive algorithm; it emits (word,1) for every occurrence of "word". |
-| `src/main/scala/WordCountBuffering.scala` | The mapper that counts the words and then emits the (word,N) tuples at the end of its run. |
-| `src/main/scala/WordCountBufferingFlushing.scala` | The buffering mapper that flushes and resets the accumulated counts once they cross a certain threshold. This change increases some packets set to the reducers, but reduces the unbounded memory required for the mapper! |
-| `src/main/scala/WordCountReduce.scala` | The reducer used for all cases. |
-| `target` | Where build products are written |
-| `word-count/input` | Location of the input Shakespeare text file. |
-| `word-count/golden` | Location of *golden* files, used for testing. |
-| `word-count/output` | Created directory; location for output when running in *local* mode. |
-| `empty-site.xml` | An "empty" Hadoop configuration file Created directory; location for output when running in *local* mode. |
+* `run.sh`: Run the hadoop jobs (after building in `sbt`). 
+* `project`: Where `sbt` build files and some support files go.
+* `src`: Tree for all source files.
+* `target`: Where build products are written, including the project jar file.
+* `word-count`: Location of `WordCount` input, output, and "golden" data files. The golden files are used for verifying test output.
 
 ## Test Runs
 
@@ -116,55 +106,55 @@ The **buffer-flush** case addresses the potential problem that the **buffer** im
 
 Note that using the **no-buffer** mapper with a combiner, i.e., by passing the `--use-combiner` option to `run.sh`, is a good compromise between implementation simplicity and resource optimization.
 
-Here are some test results on my MacBookPro with an i7 CPU, SSD, and 4GB of RAM. Note that I have made some refinements since these tests were run, so they may be slightly out of date with the latest code, but still correct in terms of relative magnitudes.
+Here are some test results on my MacBookPro with an i7 CPU, SSD, and 4GB of RAM with an early version of application. (Subsequent refinements may have affected the results.)
 
 #### No Buffering and Regular Expression String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. ||
-| :--------- | -----: | -----: | -----: | ---: |
-| Real | 6.851 | 6.841 | 6.841 | 6.844 |
-| User | 9.554 | 9.512 | 9.563 | 9.543 |
-| Sys  | 0.442 | 0.437 | 0.427 | 0.435 |
+Time (sec) | Run #1 | Run #2 | Run #3 | Avg. 
+:--------- | -----: | -----: | -----: | ---:
+Real | 6.851 | 6.841 | 6.841 | 6.844
+User | 9.554 | 9.512 | 9.563 | 9.543
+Sys  | 0.442 | 0.437 | 0.427 | 0.435
 
 #### No Buffering and StringTokenizer String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. ||
-| :--------- | -----: | -----: | -----: | ---: |
-| Real | 5.885 | 5.857 | 5.885 | 5.875 |
-| User | 7.525 | 7.557 | 7.607 | 7.563 |
-| Sys  | 0.388 | 0.410 | 0.421 | 0.406 |
+Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+:--------- | -----: | -----: | -----: | ---:
+Real | 5.885 | 5.857 | 5.885 | 5.875
+User | 7.525 | 7.557 | 7.607 | 7.563
+Sys  | 0.388 | 0.410 | 0.421 | 0.406
 
 #### Buffering and Regular Expression String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. ||
-| :--------- | -----: | -----: | -----: | ---: |
-| Real | 5.835 | 5.835 | 5.838 | 5.836 |
-| User | 7.884 | 7.872 | 7.885 | 7.880 |
-| Sys  | 0.368 | 0.362 | 0.364 | 0.364 |
+Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+:--------- | -----: | -----: | -----: | ---:
+Real | 5.835 | 5.835 | 5.838 | 5.836
+User | 7.884 | 7.872 | 7.885 | 7.880
+Sys  | 0.368 | 0.362 | 0.364 | 0.364
 
 #### Buffering and StringTokenizer String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. ||
-| :--------- | -----: | -----: | -----: | ---: |
-| Real | 3.833 | 3.832 | 3.827 | 3.830 |
-| User | 5.385 | 5.324 | 5.384 | 5.334 |
-| Sys  | 0.317 | 0.311 | 0.310 | 0.312 |
+Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+:--------- | -----: | -----: | -----: | ---:
+Real | 3.833 | 3.832 | 3.827 | 3.830
+User | 5.385 | 5.324 | 5.384 | 5.334
+Sys  | 0.317 | 0.311 | 0.310 | 0.312
 
 #### Buffering with Flushing and Regular Expression String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. ||
-| :--------- | -----: | -----: | -----: | ---: |
-| Real | 5.836 | 5.835 | 5.831 | 5.834 |
-| User | 8.672 | 8.674 | 8.706 | 8.684 |
-| Sys  | 0.420 | 0.414 | 0.418 | 0.417 |
+Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+:--------- | -----: | -----: | -----: | ---:
+Real | 5.836 | 5.835 | 5.831 | 5.834
+User | 8.672 | 8.674 | 8.706 | 8.684
+Sys  | 0.420 | 0.414 | 0.418 | 0.417
 
 #### Buffering with Flushing and StringTokenizer String Splitting:
 
-| Time (sec) | Run #1 | Run #2 | Run #3 | Ave. ||
-| :--------- | -----: | -----: | -----: | ---: |
-| Real | 4.830 | 4.838 | 4.858 | 4.842 |
-| User | 6.367 | 6.469 | 6.391 | 6.409 |
-| Sys  | 0.368 | 0.376 | 0.373 | 0.372 |
+Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+:--------- | -----: | -----: | -----: | ---:
+Real | 4.830 | 4.838 | 4.858 | 4.842
+User | 6.367 | 6.469 | 6.391 | 6.409
+Sys  | 0.368 | 0.376 | 0.373 | 0.372
 
 The flushing was set to flush every 1000 words, so the benefit of reduced memory usage was probably minimal and the extra IO hurt performance.
 
@@ -174,20 +164,19 @@ Not shown are runs Using a combiner. This option was added after the test runs w
 
 ## Using Eclipse or IntelliJ IDEA
 
-Project files for both IDEs are provided, but you'll need to edit them to fix the classpaths so they point to your `~/.ivy2` repo for the Hadoop "core" jar file.
+Project files for both IDEs can be generated by adding the corresponding SBT plugins. Add one or both of the following two lines to your `project/plugins.sbt` file, or if you don't want to modify this file or you want to use these plugins for *all* SBT projects, put them in `~/sbt/plugins/plugins.sbt`
 
-Build the code with `sbt` first, so the jar file will be loaded into your repo, then edit the appropriate project files for your IDE.
+	addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.1.2")
+
+	addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.2.0")
+
+**SBT requires blank lines before and after each such line.**
+
+Then, when you start `sbt`, you can generate project files with the following "tasks":
+
+	gen-idea   # Generate IntelliJ IDEA project files
+	eclipse    # Generate Eclipse project files
 
 ## TODOs
 
 * Add a custom `run` task to the `sbt` project configuration that can replace (or complement) `run.sh`.
-* Add a `setup` action to the `sbt` project configuration that puts the data files into HDFS, replacing the `setup.sh` script.
-* Unit TESTS! (but to be fair, the `acceptance-test.sh` provides pretty solid test coverage.)
-
-## Possible Extensions
-
-There is a lot that can be done to experiment with the code.
-
-* Filter out "stop words", e.g., "the", "a", "an", etc.
-* Implement other text processing algorithms, e.g., *Page Rank* and graph algorithms; see [Data Intensive Text Processing with MapReduce](http://www.umiacs.umd.edu/~jimmylin/book.html) for ideas).
-
