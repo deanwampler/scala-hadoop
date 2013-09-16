@@ -10,6 +10,6 @@ import wordcount._
 object Driver {
 
   def main(args: Array[String]): Unit = {
-		ToolRunner.run(new Configuration, WordCount, args);
-	}
+    ToolRunner.run(new Configuration, WordCount, args);
+  }
 }

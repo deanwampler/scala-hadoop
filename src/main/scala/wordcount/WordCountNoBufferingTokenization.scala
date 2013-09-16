@@ -10,20 +10,20 @@ import java.util.StringTokenizer
  */
 object WordCountNoBufferingTokenization {
 
-	val one  = new IntWritable(1)
-	val word = new Text     // Value will be set in a non-thread-safe way!
+  val one  = new IntWritable(1)
+  val word = new Text     // Value will be set in a non-thread-safe way!
 
-	class Map extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
-		
-		def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
-			val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-@()[]&'\"")
-			while (tokenizer.hasMoreTokens) {
-				val wordString = tokenizer.nextToken
-				if (wordString.length > 0) {
-					word.set(wordString.toLowerCase)
-					output.collect(word, one)
-				}
-			}
-		}
-	}
+  class Map extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
+    
+    def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
+      val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-@()[]&'\"")
+      while (tokenizer.hasMoreTokens) {
+        val wordString = tokenizer.nextToken
+        if (wordString.length > 0) {
+          word.set(wordString.toLowerCase)
+          output.collect(word, one)
+        }
+      }
+    }
+  }
 }
