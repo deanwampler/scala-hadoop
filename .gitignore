@@ -1,4 +1,5 @@
-project/
+project/project
+project/target
 target
 .redcar
 word-count/output
