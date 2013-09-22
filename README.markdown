@@ -118,43 +118,43 @@ Here are some test results on my MacBookPro with an i7 CPU, SSD, and 4GB of RAM 
 
 #### No Buffering and StringTokenizer String Splitting:
 
-Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
-:--------- | -----: | -----: | -----: | ---:
-Real | 5.885 | 5.857 | 5.885 | 5.875
-User | 7.525 | 7.557 | 7.607 | 7.563
-Sys  | 0.388 | 0.410 | 0.421 | 0.406
+| Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+| :--------- | -----: | -----: | -----: | ---:
+| Real | 5.885 | 5.857 | 5.885 | 5.875
+| User | 7.525 | 7.557 | 7.607 | 7.563
+| Sys  | 0.388 | 0.410 | 0.421 | 0.406
 
 #### Buffering and Regular Expression String Splitting:
 
-Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
-:--------- | -----: | -----: | -----: | ---:
-Real | 5.835 | 5.835 | 5.838 | 5.836
-User | 7.884 | 7.872 | 7.885 | 7.880
-Sys  | 0.368 | 0.362 | 0.364 | 0.364
+| Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+| :--------- | -----: | -----: | -----: | ---:
+| Real | 5.835 | 5.835 | 5.838 | 5.836
+| User | 7.884 | 7.872 | 7.885 | 7.880
+| Sys  | 0.368 | 0.362 | 0.364 | 0.364
 
 #### Buffering and StringTokenizer String Splitting:
 
-Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
-:--------- | -----: | -----: | -----: | ---:
-Real | 3.833 | 3.832 | 3.827 | 3.830
-User | 5.385 | 5.324 | 5.384 | 5.334
-Sys  | 0.317 | 0.311 | 0.310 | 0.312
+| Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+| :--------- | -----: | -----: | -----: | ---:
+| Real | 3.833 | 3.832 | 3.827 | 3.830
+| User | 5.385 | 5.324 | 5.384 | 5.334
+| Sys  | 0.317 | 0.311 | 0.310 | 0.312
 
 #### Buffering with Flushing and Regular Expression String Splitting:
 
-Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
-:--------- | -----: | -----: | -----: | ---:
-Real | 5.836 | 5.835 | 5.831 | 5.834
-User | 8.672 | 8.674 | 8.706 | 8.684
-Sys  | 0.420 | 0.414 | 0.418 | 0.417
+| Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+| :--------- | -----: | -----: | -----: | ---:
+| Real | 5.836 | 5.835 | 5.831 | 5.834
+| User | 8.672 | 8.674 | 8.706 | 8.684
+| Sys  | 0.420 | 0.414 | 0.418 | 0.417
 
 #### Buffering with Flushing and StringTokenizer String Splitting:
 
-Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
-:--------- | -----: | -----: | -----: | ---:
-Real | 4.830 | 4.838 | 4.858 | 4.842
-User | 6.367 | 6.469 | 6.391 | 6.409
-Sys  | 0.368 | 0.376 | 0.373 | 0.372
+| Time (sec) | Run #1 | Run #2 | Run #3 | Avg.
+| :--------- | -----: | -----: | -----: | ---:
+| Real | 4.830 | 4.838 | 4.858 | 4.842
+| User | 6.367 | 6.469 | 6.391 | 6.409
+| Sys  | 0.368 | 0.376 | 0.373 | 0.372
 
 The flushing was set to flush every 1000 words, so the benefit of reduced memory usage was probably minimal and the extra IO hurt performance.
 
