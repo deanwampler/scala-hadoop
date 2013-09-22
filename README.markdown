@@ -110,11 +110,11 @@ Here are some test results on my MacBookPro with an i7 CPU, SSD, and 4GB of RAM 
 
 #### No Buffering and Regular Expression String Splitting:
 
-Time (sec) | Run #1 | Run #2 | Run #3 | Avg. 
-:--------- | -----: | -----: | -----: | ---:
-Real | 6.851 | 6.841 | 6.841 | 6.844
-User | 9.554 | 9.512 | 9.563 | 9.543
-Sys  | 0.442 | 0.437 | 0.427 | 0.435
+| Time (sec) | Run #1 | Run #2 | Run #3 | Avg. 
+| :--------- | -----: | -----: | -----: | ---:
+| Real | 6.851 | 6.841 | 6.841 | 6.844
+| User | 9.554 | 9.512 | 9.563 | 9.543
+| Sys  | 0.442 | 0.437 | 0.427 | 0.435
 
 #### No Buffering and StringTokenizer String Splitting:
 
