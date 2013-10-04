@@ -24,8 +24,12 @@ root_dir=$(dirname $0)
 
 help() {
 cat <<EOF
-usage:run.sh [options] which_mapper
+usage: run.sh job [options] [which_mapper]
+
 where the options include the following:
+  job                One of the implemented MR jobs. Currently:
+                       WordCount
+                       SecondarySort
   -h | --help        Show this help and exit.
   --local            Use local/standalone mode.
                      This is converted into corresponding Hadoop arguments:
@@ -33,17 +37,19 @@ where the options include the following:
                      See also --hdfs
   --hdfs             Use pseudo-distributed (default) or distributed mode, depending on
                      how your installation is configured. See also the "generic" opts below.
-  --input=input      Input to process. Primarily for testing; see acceptance-test.sh.
-                     Defaults to word-count/input.
+  --input=input      Input to process. Defaults to data/<job>/input, where "<job>" will 
+                     be the input job argument converted to lower case (e.g., "wordcount" 
+                     from "WordCount"). (See notes in the README on input data.)
   --output=outdir    Where output goes. Defaults to 
-                     word-count/output/$which_mapper/YYYYMMDD-hhmmss
-  --use-combiner     Use the reducer as a combiner.
-The following values can be used for "which_mapper":
+                     data/<job>/output/$which_mapper/YYYYMMDD-hhmmss. (see --input for <job>...)
+  --use-combiner     Use the reducer as a combiner. 
+When running WordCount, the following values can be used for "which_mapper":
   1 | no | no-buffer  Use the most naive mapper that emits "(word,1)" pairs.
   2 | not | no-buffer-use-tokenizer   
                       Use the naive mapper, but do better text tokenization.
   3 | buffer          Use buffered counts of "(word,N)" pairs.
   4 | buffer-flush    Use buffered word counts with periodic flushing to conserve memory.
+For other jobs, this option is ignored.
 
 Any other arguments are expected to be Hadoop "generic" options, which are the following
 (see also the Hadoop javadocs for "GenericOptionsParser"):
@@ -63,10 +69,10 @@ run this script as follows:
 EOF
 }
 
+job=
 map_kind=
 use_combiner=
 hdfs_root=hdfs://localhost/user/$USER/
-using_local_mode=false
 other_args=()
 fs_jt=
 while [ $# -ne 0 ]
@@ -112,23 +118,36 @@ do
 				use_combiner=--use-combiner
 				;;
 		*)
-				other_args[${#other_args[@]}]=$1
+      if [[ -z $job ]] 
+      then
+        job=$1
+      else
+        other_args[${#other_args[@]}]=$1
+      fi
 				;;
 	esac
 	shift
 done
-if [ -z "$map_kind" ]
+
+if [[ -z $job ]]
 then
-	echo "Must specify a mapper:"
+    echo "Must specify a job:"
+    help
+    exit 1
+elif [[ $job = "WordCount" ]] && [[ -z $map_kind ]]
+then
+	echo "Must specify a mapper for the WordCount job:"
 	help
 	exit 1
 fi
 
-: ${input:=word-count/input}
-: ${output:=word-count/output/$map_kind/$(date +'%Y%m%d-%H%M%S')}
+job_lc=$(echo $job | tr [A-Z] [a-z])
+: ${input:=data/$job_lc/input}
+: ${output:=data/$job_lc/output/$map_kind/$(date +'%Y%m%d-%H%M%S')}
 
 echo "Using:"
 echo "  App. Jar:    $APP_JAR"
+echo "  Job:         $job"
 echo "  Mapper:      $map_kind"
 echo "  Combiner?    $(if [[ -n $use_combiner ]]; then echo yes; else echo no; fi)"
 echo "  Input:       $input"
@@ -136,6 +155,6 @@ echo "  Output:      $output"
 echo "  Local mode?  $(if [[ -n $fs_jt ]]; then echo yes; else echo no; fi)"
 echo "  Other args:  ${other_args[@]} $fs_jt"
 
-echo "  Running:     hadoop jar $APP_JAR $fs_jt ${other_args[@]} WordCount $map_kind $use_combiner $input $output"
-[[ -z $NOOP ]] && hadoop jar $APP_JAR $fs_jt ${other_args[@]} WordCount $map_kind $use_combiner "$input" "$output"
+echo "  Running:     hadoop jar $APP_JAR $fs_jt ${other_args[@]} $job $map_kind $use_combiner $input $output"
+[[ -z $NOOP ]] && hadoop jar $APP_JAR $fs_jt ${other_args[@]} $job $map_kind $use_combiner "$input" "$output"
 

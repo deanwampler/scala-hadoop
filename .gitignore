@@ -1,5 +1,5 @@
 project/project
 project/target
 target
-.redcar
-word-count/output
+data/wordcount/output
+data/secondarysort/output

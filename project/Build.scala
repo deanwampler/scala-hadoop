@@ -7,6 +7,7 @@ object BuildSettings {
   val Organization  = "concurrentthought.com"
   val Version       = "2.0.0"
   val ScalaVersion  = "2.10.2"
+  val HadoopVersion = "1.1.2"
   val Description   = "Example MapReduce jobs written with Scala using the low-level Java API"
   val ScalacOptions = Seq("-deprecation", "-encoding", "UTF-8", "-unchecked", "-feature") //, "-explaintypes")
   val JavacOptions  = Seq("-Xlint:unchecked", "-Xlint:deprecation")
@@ -30,19 +31,21 @@ object BuildSettings {
     // Slightly cleaner jar name
     jarName in assembly <<= (name, version) { (name, version) => name + "-" + version + ".jar" },
     
-    // Drop these jars
+    // Drop most of the jars from the assembly!
     excludedJars in assembly <<= (fullClasspath in assembly) map { cp =>
       val excludes = Set(
         "scala-compiler.jar",
+        "ant-1.6.5.jar",
         "jsp-api-2.1-6.1.14.jar",
         "jsp-2.1-6.1.14.jar",
+        "stax-api-1.0.1.jar",
+        "stax-api-1.0-2.jar",
         "jasper-compiler-5.5.12.jar",
         "minlog-1.2.jar", // Otherwise causes conflicts with Kyro (which bundles it)
         "janino-2.5.16.jar", // Janino includes a broken signature, and is not needed anyway
         "commons-beanutils-core-1.8.0.jar", // Clash with each other and with commons-collections
-        "commons-beanutils-1.7.0.jar"
-        // "hadoop-core-0.20.2.jar", // Provided by Amazon EMR. Delete this line if you're not on EMR
-        // "hadoop-tools-0.20.2.jar" 
+        "commons-beanutils-1.7.0.jar",
+        "hadoop-core-%s.jar".format(BuildSettings.HadoopVersion)
       ) 
       cp filter { jar => excludes(jar.data.getName) }
     },
@@ -93,9 +96,9 @@ object Dependency {
 
   // Include the Scala compiler itself for reification and evaluation of expressions. 
   val scalaCompiler = "org.scala-lang"    % "scala-compiler"  % BuildSettings.ScalaVersion
-	val hadoopCore    = "org.apache.hadoop" % "hadoop-core"     % "0.20.205.0"
-  val scalaTest     = "org.scalatest"     % "scalatest_2.10"  % "2.0.M5b"  %  "test"
-  val jUnit         = "junit"             % "junit"           % "4.10"     %  "test" 
+	val hadoopCore    = "org.apache.hadoop" % "hadoop-core"     % BuildSettings.HadoopVersion
+  val scalaTest     = "org.scalatest"     % "scalatest_2.10"  % "2.0.M5b"  % "test"
+  val jUnit         = "junit"             % "junit"           % "4.10"     % "test" 
   val mrUnit        = "org.apache.mrunit" % "mrunit"          % "1.0.0"    % "test" classifier "hadoop1" 
 }
 
