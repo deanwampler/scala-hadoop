@@ -104,7 +104,7 @@ Here is an example invocation that uses the simplest mapper (argument `1`), runn
 
 	./run.sh WordCount --local 1
 
-The input defaults to `data/wordcount/input` and the output defaults to `data/wordcount/output`. Drop the `--local` option for running in Hadoop using HDFS:
+(The case of the driver class `WordCount` matters.) The input defaults to `data/wordcount/input` and the output defaults to `data/wordcount/output`. Drop the `--local` option for running in Hadoop using HDFS:
 
 	./run.sh WordCount --local 1
 
@@ -135,13 +135,15 @@ See [Data-Intensive Text Processing with MapReduce](http://beowulf.csail.mit.edu
 
 Run this example with the following command:
 
-	./run.sh SecondarySort --local
+	./run.sh SecondarySort --local --symbol AAPL
 
 (Unlike for the Word Count example, there is only one Mapper, so no additional argument is required.)
 
 The input defaults to `data/secondarysort/input` and the output defaults to `data/secondarysort/output`. Drop the `--local` option for running in Hadoop using HDFS:
 
-	./run.sh SecondarySort 
+	./run.sh SecondarySort --symbol AAPL
+
+Use whatever stock symbol for the data you installed.
 
 ## Files
 

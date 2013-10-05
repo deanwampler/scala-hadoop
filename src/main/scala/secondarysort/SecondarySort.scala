@@ -14,11 +14,11 @@ import org.apache.hadoop.util.{ GenericOptionsParser, Tool, ToolRunner }
  * See also the secondary sort example that comes with the Hadoop distribution, and 
  * discussions in "Hadoop: The Definitive Guide" 
  */
-class ClosingPriceSorter extends Configured with Tool {
-  import ClosingPriceSorter._
+class SecondarySort extends Configured with Tool {
+  import SecondarySort._
 
   override def run(args: Array[String]): Int = {
-    val conf = new JobConf(classOf[ClosingPriceSorter])
+    val conf = new JobConf(classOf[SecondarySort])
     conf.setJobName("Stock Analysis")
     val optionsParser = new GenericOptionsParser(conf, args)
     
@@ -109,17 +109,17 @@ class ClosingPriceSorter extends Configured with Tool {
   }
 }
 
-object ClosingPriceSorter extends Configured {
+object SecondarySort extends Configured {
 
   def usage(message: String): Unit = {
     Console.err.println(message);
-    Console.err.println("usage: java ...ClosingPriceSorter [generic_options] " + 
+    Console.err.println("usage: java ...SecondarySort [generic_options] " + 
             "--symbol stock_symbol in_path out_path");
     ToolRunner.printGenericCommandUsage(Console.err);
   }
 
   def main(args: Array[String]): Unit = {
-    val exitCode = ToolRunner.run(new ClosingPriceSorter(), args)
+    val exitCode = ToolRunner.run(new SecondarySort(), args)
     sys.exit(exitCode)
   }
 }

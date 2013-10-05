@@ -14,7 +14,7 @@ import org.apache.hadoop.mrunit.types.{ Pair => MRPair }
  * we can't configure it's use in the test, so the output will be sorted according 
  * the YearYMDClose's own comparison implementation. 
  */
-class ClosingPriceSorterSuite extends JUnitSuite {
+class SecondarySortSuite extends JUnitSuite {
 
 	@Test def `StockMapper parses records, filters by symbol, and outputs (YearYMDClose,NullWritable) pairs`() {
 		val inputs1 = List( 

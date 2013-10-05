@@ -8,7 +8,7 @@ import org.apache.hadoop.io.{ WritableComparable, WritableComparator }
  * so specifying the comparator explicitly will tell Hadoop not to use the default comparison
  * function compareTo() that is implemented in the key class itself.
  */
-class KeyComparator extends WritableComparator(classOf[WritableComparable[_]], true) {
+class KeyComparator extends WritableComparator(classOf[YearYMDClose], true) {
 
   /**
    * We ignore the 2nd element of the tuple (the full date). We sort by the

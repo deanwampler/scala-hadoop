@@ -168,7 +168,7 @@ pre .tex .formula {
   <div id="wrapper">
       <h1 id="programminghadoopwithscala">Programming Hadoop with Scala</h1>
 
-<p><a href="&#x6d;&#x61;&#105;&#108;&#x74;&#x6f;&#58;&#x64;&#x65;&#x61;&#110;&#64;&#99;&#x6f;&#110;&#99;&#x75;&#114;&#x72;&#x65;&#x6e;&#116;&#x74;&#104;&#111;&#x75;&#103;&#104;&#x74;&#x2e;&#x63;&#111;&#109;">&#x44;&#x65;&#97;&#110; &#87;&#97;&#109;&#x70;&#x6c;&#101;&#114;</a></p>
+<p><a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x64;&#x65;&#97;&#x6e;&#x40;&#99;&#111;&#x6e;&#99;&#x75;&#x72;&#114;&#101;&#x6e;&#x74;&#116;&#x68;&#x6f;&#x75;&#x67;&#104;&#116;&#x2e;&#x63;&#x6f;&#109;">&#68;&#x65;&#97;&#110; &#x57;&#97;&#x6d;&#x70;&#x6c;&#101;&#x72;</a></p>
 
 <p>This is an experiment using Scala and Hadoop&#8217;s low-level Java APIs. It uses the Hadoop V0.20.20X/V1.X <code>org.apache.hadoop.*.mapred</code> part of the API, not the slightly newer, but incomplete <code>org.apache.hadoop.*.mapreduce</code>. Longer term, this project may support Hadoop V2.</p>
 
@@ -326,7 +326,7 @@ quit      # exit sbt
 <pre><code>./run.sh WordCount --local 1
 </code></pre>
 
-<p>The input defaults to <code>data/wordcount/input</code> and the output defaults to <code>data/wordcount/output</code>. Drop the <code>--local</code> option for running in Hadoop using HDFS:</p>
+<p>(The case of the driver class <code>WordCount</code> matters.) The input defaults to <code>data/wordcount/input</code> and the output defaults to <code>data/wordcount/output</code>. Drop the <code>--local</code> option for running in Hadoop using HDFS:</p>
 
 <pre><code>./run.sh WordCount --local 1
 </code></pre>
@@ -362,15 +362,17 @@ ORDER BY last_name ASC, first_name ASC
 
 <p>Run this example with the following command:</p>
 
-<pre><code>./run.sh SecondarySort --local
+<pre><code>./run.sh SecondarySort --local --symbol AAPL
 </code></pre>
 
 <p>(Unlike for the Word Count example, there is only one Mapper, so no additional argument is required.)</p>
 
 <p>The input defaults to <code>data/secondarysort/input</code> and the output defaults to <code>data/secondarysort/output</code>. Drop the <code>--local</code> option for running in Hadoop using HDFS:</p>
 
-<pre><code>./run.sh SecondarySort 
+<pre><code>./run.sh SecondarySort --symbol AAPL
 </code></pre>
+
+<p>Use whatever stock symbol for the data you installed.</p>
 
 <h2 id="files">Files</h2>
 

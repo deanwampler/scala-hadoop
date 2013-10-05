@@ -50,6 +50,9 @@ When running WordCount, the following values can be used for "which_mapper":
   3 | buffer          Use buffered counts of "(word,N)" pairs.
   4 | buffer-flush    Use buffered word counts with periodic flushing to conserve memory.
 For other jobs, this option is ignored.
+When running SecondarySort, you must specify a stock symbol to select for (even if your
+data has data for only one symbol...)
+  --symbol symbol
 
 Any other arguments are expected to be Hadoop "generic" options, which are the following
 (see also the Hadoop javadocs for "GenericOptionsParser"):
@@ -72,6 +75,7 @@ EOF
 job=
 map_kind=
 use_combiner=
+stock_symbol_arg=
 hdfs_root=hdfs://localhost/user/$USER/
 other_args=()
 fs_jt=
@@ -114,9 +118,14 @@ do
 		--output=*)
 				output=${1#--output=}
 				;;
-		--use-combiner)
-				use_combiner=--use-combiner
-				;;
+    --use-combiner)
+        use_combiner=--use-combiner
+        ;;
+    --symbol)
+        shift
+        stock_symbol=$1
+        stock_symbol_arg="--symbol $1"
+        ;;
 		*)
       if [[ -z $job ]] 
       then
@@ -139,6 +148,8 @@ then
 	echo "Must specify a mapper for the WordCount job:"
 	help
 	exit 1
+else 
+  job2="$(echo $job | tr [A-Z] [a-z]).$job"
 fi
 
 job_lc=$(echo $job | tr [A-Z] [a-z])
@@ -146,15 +157,18 @@ job_lc=$(echo $job | tr [A-Z] [a-z])
 : ${output:=data/$job_lc/output/$map_kind/$(date +'%Y%m%d-%H%M%S')}
 
 echo "Using:"
-echo "  App. Jar:    $APP_JAR"
-echo "  Job:         $job"
-echo "  Mapper:      $map_kind"
-echo "  Combiner?    $(if [[ -n $use_combiner ]]; then echo yes; else echo no; fi)"
-echo "  Input:       $input"
-echo "  Output:      $output"
-echo "  Local mode?  $(if [[ -n $fs_jt ]]; then echo yes; else echo no; fi)"
-echo "  Other args:  ${other_args[@]} $fs_jt"
-
-echo "  Running:     hadoop jar $APP_JAR $fs_jt ${other_args[@]} $job $map_kind $use_combiner $input $output"
-[[ -z $NOOP ]] && hadoop jar $APP_JAR $fs_jt ${other_args[@]} $job $map_kind $use_combiner "$input" "$output"
+echo "  App. Jar:     $APP_JAR"
+echo "  Job:          $job"
+echo "  Mapper:       $map_kind"
+echo "  Combiner?     $(if [[ -n $use_combiner ]]; then echo yes; else echo no; fi)"
+echo "  Input:        $input"
+echo "  Output:       $output"
+echo "  Local mode?   $(if [[ -n $fs_jt ]]; then echo yes; else echo no; fi)"
+if [[ -z $symbol ]]
+then
+  echo "  Stock Symbol: $stock_symbol"
+fi
+echo "  Other args:   ${other_args[@]} $fs_jt"
+echo "  Running:     hadoop jar $APP_JAR $job2 $fs_jt ${other_args[@]} $map_kind $use_combiner $input $output" $stock_symbol_arg
+[[ -z $NOOP ]] && hadoop jar $APP_JAR $fs_jt $job2 ${other_args[@]} $map_kind $use_combiner "$input" "$output" $stock_symbol_arg
 
