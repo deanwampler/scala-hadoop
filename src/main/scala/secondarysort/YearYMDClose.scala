@@ -12,25 +12,25 @@ case class YearYMDClose(yearW: IntWritable, ymdW: Text, closingPriceW: FloatWrit
   /**
    * Convenience constructor.
    */
-  def this(year: Int, ymd: String, closingPrice: Float) = 
+  def this(year: Int, ymd: String, closingPrice: Float) =
     this(new IntWritable(year), new Text(ymd), new FloatWritable(closingPrice))
 
-  /** 
+  /**
    * You should not create an object in an invalid, e.g., uninitialized
    * state. Unfortunately, Hadoop requires a default constructor here.
    */
   def this() = this(0, "", 0.0f)
 
   override def write(out: DataOutput): Unit = {
-    yearW.write(out);
-    ymdW.write(out);
-    closingPriceW.write(out);
+    yearW.write(out)
+    ymdW.write(out)
+    closingPriceW.write(out)
   }
 
   override def readFields(in: DataInput): Unit = {
-    yearW.readFields(in);
-    ymdW.readFields(in);
-    closingPriceW.readFields(in);
+    yearW.readFields(in)
+    ymdW.readFields(in)
+    closingPriceW.readFields(in)
   }
 
   def compareTo(other: YearYMDClose): Int = {

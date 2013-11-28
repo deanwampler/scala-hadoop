@@ -15,13 +15,13 @@ class KeyComparator extends WritableComparator(classOf[YearYMDClose], true) {
    * year (1st element) ascending, then the price (3rd element) descending.
    */
   override def compare(w1: WritableComparable[_], w2: WritableComparable[_]): Int = {
-    val t1 = w1.asInstanceOf[YearYMDClose]; 
-    val t2 = w2.asInstanceOf[YearYMDClose]; 
-    val cmp = t1.year.compareTo(t2.year); 
+    val t1 = w1.asInstanceOf[YearYMDClose]
+    val t2 = w2.asInstanceOf[YearYMDClose]
+    val cmp = t1.year.compareTo(t2.year)
     if (cmp != 0) {
       cmp
     } else {
-      -t1.closingPrice.compareTo(t2.closingPrice);  // REVERSE!
+      -t1.closingPrice.compareTo(t2.closingPrice) // REVERSE!
     }
   }
 }

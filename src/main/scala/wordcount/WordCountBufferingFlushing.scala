@@ -1,7 +1,7 @@
 package wordcount
 
-import org.apache.hadoop.io.{IntWritable, LongWritable, Text}
-import org.apache.hadoop.mapred.{MapReduceBase, Mapper, OutputCollector, Reporter}
+import org.apache.hadoop.io.{ IntWritable, LongWritable, Text }
+import org.apache.hadoop.mapred.{ MapReduceBase, Mapper, OutputCollector, Reporter }
 import java.util.StringTokenizer
 
 /**
@@ -14,14 +14,14 @@ import java.util.StringTokenizer
 object WordCountBufferingFlushing {
 
   class Map extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
-    
+
     val MAX_SIZE = 1000
     var count = 0
-    val words = new scala.collection.mutable.HashMap[String,Int]
+    val words = new scala.collection.mutable.HashMap[String, Int]
     // Save the output collector so we can use it in close. Is this safe??
-    var outputCollector: OutputCollector[Text, IntWritable] = _;
+    var outputCollector: OutputCollector[Text, IntWritable] = _
 
-    def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
+    def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter): Unit = {
       outputCollector = output
       val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-@()[]&'\"")
       while (tokenizer.hasMoreTokens) {
@@ -32,20 +32,20 @@ object WordCountBufferingFlushing {
         }
       }
     }
-    
-    override def close() = flushIfLargerThan(1,0)
-    
+
+    override def close() = flushIfLargerThan(1, 0)
+
     protected def increment(wordString: String) = words.get(wordString) match {
-      case Some(count) => words.put(wordString, count+1)
-      case None =>  words.put(wordString, 1)
+      case Some(count) ⇒ words.put(wordString, count + 1)
+      case None        ⇒ words.put(wordString, 1)
     }
 
     protected def flushIfLargerThan(count: Int, threshold: Int): Int = if (count < threshold) {
       count + 1
     } else {
-      val word  = new Text()
+      val word = new Text()
       val count = new IntWritable(1)
-      words foreach { kv => 
+      words foreach { kv ⇒
         word.set(kv._1)
         count.set(kv._2)
         outputCollector.collect(word, count)
