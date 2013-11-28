@@ -1,7 +1,7 @@
 package wordcount
 
-import org.apache.hadoop.io.{IntWritable, LongWritable, Text}
-import org.apache.hadoop.mapred.{MapReduceBase, Mapper, Reducer, OutputCollector, Reporter}
+import org.apache.hadoop.io.{ IntWritable, LongWritable, Text }
+import org.apache.hadoop.mapred.{ MapReduceBase, Mapper, Reducer, OutputCollector, Reporter }
 import java.util.StringTokenizer
 
 /**
@@ -10,12 +10,12 @@ import java.util.StringTokenizer
  */
 object WordCountNoBufferingTokenization {
 
-  val one  = new IntWritable(1)
-  val word = new Text     // Value will be set in a non-thread-safe way!
+  val one = new IntWritable(1)
+  val word = new Text // Value will be set in a non-thread-safe way!
 
   class Map extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
-    
-    def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter):Unit = {
+
+    def map(key: LongWritable, valueDocContents: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter): Unit = {
       val tokenizer = new StringTokenizer(valueDocContents.toString, " \t\n\r\f.,:;?!-@()[]&'\"")
       while (tokenizer.hasMoreTokens) {
         val wordString = tokenizer.nextToken
